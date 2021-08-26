@@ -91,7 +91,6 @@ class ContactPopUpMenu extends StatelessWidget {
         }
       },
       onCanceled: () {
-        print("onCanceled");
       },
     );
   }

@@ -22,7 +22,6 @@ class CurrentMessageListModel with ChangeNotifier, DiagnosticableTreeMixin {
       _messageMap[key] = msgList;
       notifyListeners();
     } else {
-      print("会话列表不存在这个userid key");
     }
   }
 
@@ -47,9 +46,6 @@ class CurrentMessageListModel with ChangeNotifier, DiagnosticableTreeMixin {
   }
 
   addOneMessageIfNotExits(String key, V2TimMessage message) {
-    print("======1111111>>$key ${message.status} ${message.progress}");
-    print(key);
-    print(_messageMap.keys);
     if (_messageMap.containsKey(key)) {
       bool hasMessage =
           _messageMap[key]!.any((element) => element.msgID == message.msgID);
@@ -67,7 +63,6 @@ class CurrentMessageListModel with ChangeNotifier, DiagnosticableTreeMixin {
     }
     _messageMap[key]!
         .sort((left, right) => left.timestamp!.compareTo(right.timestamp!));
-    print("======1111111>>2222$key ${message.status} ${message.progress}");
     notifyListeners();
     return _messageMap;
   }

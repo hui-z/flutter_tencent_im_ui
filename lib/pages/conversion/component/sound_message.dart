@@ -21,13 +21,6 @@ class SoundMessageState extends State<SoundMessage> {
   void initState() {
     super.initState();
     AudioPlayer.logEnabled = true;
-    // recordPlugin.responsePlayStateController.listen((data) {
-    //   if (data.playState == 'complete') {
-    //     setState(() {
-    //       isPlay = false;
-    //     });
-    //   }
-    // });
 
     //  当录音播放完成时
     audioPlayer.onPlayerCompletion.listen((event) {
@@ -49,18 +42,15 @@ class SoundMessageState extends State<SoundMessage> {
       setState(() {
         isPlay = !isPlay;
       });
-      print("语音地址$url");
       int result = await audioPlayer.play(url);
       if (result == 1) {
         // success
       }
-      // recordPlugin.playByPath(url, "m4a");
     }
   }
 
   void deactivate() {
     super.deactivate();
-    print("sound message deactivate call ${widget.message.msgID}");
     recordPlugin.dispose();
   }
 

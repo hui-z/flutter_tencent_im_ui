@@ -22,7 +22,6 @@ class ProfileState extends State<Profile> {
 
   Widget build(BuildContext context) {
     V2TimUserFullInfo? info = Provider.of<UserModel>(context).info;
-    // print("个人信息${info.toJson()}");
     if (info == null) {
       return Container();
     }

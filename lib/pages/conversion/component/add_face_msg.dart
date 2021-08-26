@@ -14,17 +14,15 @@ class FaceMsg extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       height: height,
-      color: hexToColor('ededed'),
+      color: hexToColor('EDEDED'),
       padding: EdgeInsets.fromLTRB(24, 16, 24, 16),
       child: GridView(
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 8,
           childAspectRatio: 1,
-          // mainAxisSpacing: 23,
-          // crossAxisSpacing: 12,
         ),
         children: emojiData.map(
-              (e) {
+          (e) {
             var item = Emoji.fromJson(e);
             return new EmojiItem(
               name: item.name,

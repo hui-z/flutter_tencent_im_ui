@@ -870,7 +870,6 @@ class EmojiItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () async {
-        print("表情touser$toUser");
         V2TimValueCallback<V2TimMessage>? sendRes;
         if (type == 1) {
           sendRes = await TencentImSDKPlugin.v2TIMManager.sendC2CTextMessage(
@@ -884,14 +883,11 @@ class EmojiItem extends StatelessWidget {
         }
         if (sendRes!.code == 0) {
           String key = (type == 1 ? "c2c_$toUser" : "group_$toUser");
-          print("key $key");
           List<V2TimMessage> list = List.empty(growable: true);
           list.add(sendRes.data!);
           Provider.of<CurrentMessageListModel>(context, listen: false)
               .addMessage(key, list);
-          print('发送成功');
         } else {
-          print('发送失败${sendRes.desc}');
         }
       },
       child: Container(

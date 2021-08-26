@@ -63,7 +63,6 @@ class ChooseContactState extends State<ChooseContact> {
           newList.add(id);
         }
       }
-      print("new List $newList");
       setState(() {
         selectList = newList;
       });
@@ -158,7 +157,6 @@ class ChooseContactState extends State<ChooseContact> {
                                       user['userID'] = element;
                                       user['role'] = 200;
                                       newlist.add(user);
-                                      print(newlist);
                                     });
                                     if (type != 6) {
                                       V2TimValueCallback<String> res =
@@ -183,8 +181,6 @@ class ChooseContactState extends State<ChooseContact> {
                                         Utils.toast("${res.code} ${res.desc}");
                                       }
                                     } else {
-                                      print("selectList $selectList");
-                                      print("groupID $groupID");
                                       // 拉人进群
                                       TencentImSDKPlugin.v2TIMManager
                                           .getGroupManager()

@@ -258,8 +258,6 @@ class GroupTypeAndAddInfo extends StatelessWidget {
   bool canDissmiss() {
     String groupType = groupInfo!.groupInfo!.groupType;
     int? role = groupInfo!.groupInfo!.role;
-    print(
-        "groupType $groupType $role ${groupType != GroupType.Work} ${(groupType != GroupType.Work && (role == GroupMemberRoleType.V2TIM_GROUP_MEMBER_ROLE_ADMIN || role == GroupMemberRoleType.V2TIM_GROUP_MEMBER_ROLE_OWNER))}");
     return (groupType == GroupType.Work &&
             role == GroupMemberRoleType.V2TIM_GROUP_MEMBER_ROLE_ADMIN) ||
         (groupType != GroupType.Work &&
@@ -542,9 +540,7 @@ class ExitGroup extends StatelessWidget {
                 if (res.code == 0) {
                   Utils.toast("退出成功");
                   if (deleteRes.code == 0) {
-                    print("删除会话成功");
                   } else {
-                    print("删除会话失败 ${deleteRes.code} ${deleteRes.desc}");
                   }
                   Navigator.pop(context);
                 } else {
@@ -568,7 +564,6 @@ class ConversationInfoState extends State<ConversationInfo> {
     this.groupInfo = V2TimGroupInfoResult();
     this.memberInfo = V2TimGroupMemberInfoResult();
     this.memberInfo.memberInfoList = List.empty();
-    print("当前会话id ${this.id}");
     getDetail();
   }
 
@@ -590,7 +585,6 @@ class ConversationInfoState extends State<ConversationInfo> {
       Utils.toast("获取群信息失败 ${res.code} ${res.desc}");
     }
 
-    print("当前用户详情${res.data![0].groupInfo!.toJson()}");
     String groupID = res.data![0].groupInfo!.groupID;
     V2TimValueCallback<V2TimGroupMemberInfoResult> list =
         await TencentImSDKPlugin.v2TIMManager
@@ -601,8 +595,6 @@ class ConversationInfoState extends State<ConversationInfo> {
               nextSeq: "0", //第一次从0开始拉
             );
     if (list.code == 0) {
-      print(
-          "list.data.memberInfoList.length:${list.data!.memberInfoList!.length}");
 
       setState(() {
         groupInfo = res.data![0];

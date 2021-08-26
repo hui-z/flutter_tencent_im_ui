@@ -38,7 +38,6 @@ class ApplicationItem extends StatelessWidget {
       getFriendApplication(context);
       Navigator.pop(context);
     } else {
-      print(res.desc);
     }
   }
 
@@ -56,7 +55,6 @@ class ApplicationItem extends StatelessWidget {
       await getFriendApplication(context); // 解决好友通知不清理的问题
       Navigator.pop(context);
     } else {
-      print(res.desc);
     }
   }
 
@@ -66,7 +64,6 @@ class ApplicationItem extends StatelessWidget {
             .getFriendshipManager()
             .getFriendApplicationList();
     if (data.code == 0) {
-      print("dangqianshenqing${data.data!.friendApplicationList!.length}");
       if (data.data!.friendApplicationList!.length > 0) {
         Provider.of<FriendApplicationModel>(context, listen: false)
             .setFriendApplicationResult(data.data!.friendApplicationList);
@@ -80,7 +77,6 @@ class ApplicationItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print("当前申请${application.toJson()}");
     return Material(
       child: Ink(
         color: CommonColors.getWitheColor(),
@@ -168,7 +164,6 @@ class GroupApplicationItem extends StatelessWidget {
       getGroupApplicationList(context);
       back(context);
     } else {
-      print(res.desc);
     }
   }
 
@@ -189,7 +184,6 @@ class GroupApplicationItem extends StatelessWidget {
     } else {
       Utils.toast("加群失败 ${res.desc}");
     }
-    print("同意加群${res.code}");
   }
 
   back(context) {
@@ -211,13 +205,11 @@ class GroupApplicationItem extends StatelessWidget {
             .setGroupApplicationResult(new List.empty(growable: true));
       }
     } else {
-      print("获取加群申请失败${res.desc}");
     }
   }
 
   @override
   Widget build(Object context) {
-    print("当前申请${application.toJson()}");
     return Material(
       child: Ink(
         color: CommonColors.getWitheColor(),
@@ -349,7 +341,6 @@ class NewFriendOrGroupNoticeState extends State<NewFriendOrGroupNotice> {
         .setGroupApplicationRead()
         .then((V2TimCallback value) {
       if (value.code == 0) {
-        print("设置申请已读成功。");
       }
     });
   }

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
-import 'addAdvanceMsg.dart';
-import 'addTextMsg.dart';
-import 'addVoiceMsg.dart';
+import 'add_advance_msg.dart';
+import 'add_text_msg.dart';
+import 'add_voice_msg.dart';
 
 class MsgInput extends StatefulWidget {
   MsgInput(this.toUser, this.type, this.recordBackStatus,
@@ -26,8 +26,6 @@ class _MsgInputState extends State<MsgInput> {
 
   @override
   Widget build(BuildContext context) {
-    print("toUser${widget.toUser} ${widget.type} ***** MsgInput");
-
     return Container(
       child: Column(
         children: [

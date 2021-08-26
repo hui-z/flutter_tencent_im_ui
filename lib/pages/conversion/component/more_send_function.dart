@@ -16,7 +16,7 @@ import 'package:tencent_im_sdk_plugin/models/v2_tim_value_callback.dart';
 import 'package:tencent_im_sdk_plugin/tencent_im_sdk_plugin.dart';
 import 'package:video_thumbnail/video_thumbnail.dart';
 
-import 'advanceMsgItem.dart';
+import 'advance_msg_item.dart';
 
 class MoreSendFunction extends StatelessWidget {
   MoreSendFunction(
@@ -145,11 +145,9 @@ class MoreSendFunction extends StatelessWidget {
         Provider.of<CurrentMessageListModel>(context, listen: false)
             .addOneMessageIfNotExits(key, msg!);
       } catch (err) {
-        print("发生错误");
       }
     } else {
       Utils.toast("发送失败 ${res.code} ${res.desc}");
-      print(res.desc);
     }
   }
 
@@ -160,7 +158,6 @@ class MoreSendFunction extends StatelessWidget {
       return;
     }
     String path = image.path;
-    print(path);
     V2TimValueCallback<V2TimMessage> res = await TencentImSDKPlugin.v2TIMManager
         .getMessageManager()
         .sendImageMessage(
@@ -178,7 +175,6 @@ class MoreSendFunction extends StatelessWidget {
         Provider.of<CurrentMessageListModel>(context, listen: false)
             .addOneMessageIfNotExits(key, msg!);
       } catch (err) {
-        print("发生错误");
       }
     } else {
       Utils.toast("发送失败 ${res.code} ${res.desc}");
@@ -186,7 +182,6 @@ class MoreSendFunction extends StatelessWidget {
   }
 
   sendCustomData(context) async {
-    print("herree $toUser");
     V2TimValueCallback<V2TimMessage> res = await TencentImSDKPlugin.v2TIMManager
         .getMessageManager()
         .sendCustomMessage(
@@ -260,10 +255,8 @@ class MoreSendFunction extends StatelessWidget {
         Provider.of<CurrentMessageListModel>(context, listen: false)
             .addMessage(key, list);
       } catch (err) {
-        print("发生错误");
       }
     } else {
-      print("发送失败 ${res.code} ${res.desc} herree");
       Utils.toast("发送失败 ${res.code} ${res.desc}");
     }
   }
@@ -272,7 +265,6 @@ class MoreSendFunction extends StatelessWidget {
     FilePickerResult? result = await FilePicker.platform.pickFiles();
 
     if (result != null) {
-      print("选择成功${result.files.single.path}");
       String? path = result.files.single.path;
       V2TimValueCallback<V2TimMessage> res = await TencentImSDKPlugin
           .v2TIMManager
@@ -295,7 +287,6 @@ class MoreSendFunction extends StatelessWidget {
           Provider.of<CurrentMessageListModel>(context, listen: false)
               .addMessage(key, list);
         } catch (err) {
-          print("发生错误");
         }
       } else {
         Utils.toast("发送失败 ${res.code} ${res.desc}");

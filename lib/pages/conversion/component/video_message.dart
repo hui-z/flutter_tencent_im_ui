@@ -30,7 +30,6 @@ class VideoMessageState extends State<VideoMessage> {
         )..initialize().then((_) {
             setState(() {});
           }).catchError((err) {
-            print("初始化视频发生错误$err");
           });
       } else {
         _controller = VideoPlayerController.network(
@@ -38,20 +37,15 @@ class VideoMessageState extends State<VideoMessage> {
         )..initialize().then((_) {
             setState(() {});
           }).catchError((err) {
-            print("初始化视频发生错误$err");
           });
       }
     } catch (err) {
-      print("视频初始化发生异常");
     }
 
     // ignore: invalid_use_of_protected_member
     if (!_controller!.hasListeners) {
       _controller!.addListener(() {
-        print(
-            "播放着 ${_controller!.value.isPlaying} ${_controller!.value.position} ${_controller!.value.duration} ${_controller!.value.duration == _controller!.value.position}");
         if (_controller!.value.position == _controller!.value.duration) {
-          print("到头了 ${_controller!.value.isPlaying}");
           if (!_controller!.value.isPlaying) {
             setState(() {});
           }
@@ -70,7 +64,6 @@ class VideoMessageState extends State<VideoMessage> {
 
   void deactivate() {
     super.deactivate();
-    print("video message deactivate call ${widget.message.msgID}");
     _controller!.dispose();
   }
 

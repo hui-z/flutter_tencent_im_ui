@@ -11,7 +11,6 @@ class FrientNotice extends StatelessWidget {
   Widget build(BuildContext context) {
     List<V2TimFriendApplication>? applicationList =
         Provider.of<FriendApplicationModel>(context).friendApplicationList;
-    print("重新渲染好友申请");
     return InkWell(
       onTap: () {
         Navigator.push(

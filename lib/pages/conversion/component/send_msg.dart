@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_tencent_im_ui/common/avatar.dart';
 import 'package:tencent_im_sdk_plugin/models/v2_tim_message.dart';
 
-import 'fixPosition.dart';
-import 'msgBody.dart';
+import 'fix_position.dart';
+import 'msg_body.dart';
 
 class SendMsg extends StatelessWidget {
   SendMsg(this.message, this.key);
@@ -11,7 +11,6 @@ class SendMsg extends StatelessWidget {
   final Key key;
   getShowMessage() {
     String msg = '';
-    print("message:$message");
     switch (message.elemType) {
       case 1:
         msg = message.textElem?.text ?? "";
@@ -67,7 +66,6 @@ class SendMsg extends StatelessWidget {
           GestureDetector(
             onTap: () {
               if (!message.isSelf!) {
-                print("1111");
                 // 区分群内消息和普通好友消息
               }
             },

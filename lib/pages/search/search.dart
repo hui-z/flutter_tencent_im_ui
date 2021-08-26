@@ -51,7 +51,6 @@ class Input extends StatelessWidget {
         getFriendList(context);
         Navigator.pop(context);
       } else {
-        print(res.desc);
         Utils.toast(res.desc);
       }
     }

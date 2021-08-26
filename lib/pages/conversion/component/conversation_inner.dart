@@ -6,16 +6,17 @@ import 'package:provider/provider.dart';
 import 'package:tencent_im_sdk_plugin/models/v2_tim_message.dart';
 import 'package:tencent_im_sdk_plugin/tencent_im_sdk_plugin.dart';
 
-import 'sendMsg.dart';
+import 'send_msg.dart';
 
 
 class ConversationInner extends StatefulWidget {
   ConversationInner(this.conversationID, this.type, this.userID, this.groupID, this.scrollListener);
-  String conversationID;
-  int type;
-  String? userID;
-  String? groupID;
-  VoidCallback scrollListener;
+  final String conversationID;
+  final int type;
+  final String? userID;
+  final String? groupID;
+  final VoidCallback scrollListener;
+
   @override
   State<StatefulWidget> createState() => ConversationInnerState();
 }
@@ -95,30 +96,22 @@ class ConversationInnerState extends State<ConversationInner>
           .markGroupMessageAsRead(groupID: widget.groupID!)
           .then((res) {
         if (res.code == 0) {
-          print("设置群组会话已读 成功");
         } else {
-          print("设置群组会话已读 失败");
         }
       });
     }
     if (hasNoRead) {
       if (widget.type == 1) {
-        print("设置个人会话已读");
-        print(
-            "设置个人会话已读设置个人会话已读设置个人会话已读设置个人会话已读设置个人会话已读设置个人会话已读设置个人会话已读设置个人会话已读设置个人会话已读设置个人会话已读");
         TencentImSDKPlugin.v2TIMManager
             .getMessageManager()
             .markC2CMessageAsRead(userID: widget.userID!)
             .then((res) {
           if (res.code == 0) {
-            print("设置个人会话已读 成功");
           } else {
-            print("设置个人会话已读 失败");
           }
         });
       }
     } else {
-      print("没有未读");
     }
   }
 
@@ -128,7 +121,6 @@ class ConversationInnerState extends State<ConversationInner>
         Provider.of<CurrentMessageListModel>(context).messageMap;
     List<V2TimMessage> messageList = List.empty(growable: true);
     getHistoryList(currentMessageMap, messageList);
-    print("添加了一条发送中的消息 刷新聊天列表");
     return Container(
       color: Colors.white,
       child: SingleChildScrollView(

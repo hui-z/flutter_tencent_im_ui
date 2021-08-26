@@ -60,8 +60,7 @@ class AddToBlackListState extends State<AddToBlackList> {
                       ]);
                       if (res.code == 0) {
                         List<V2TimFriendOperationResult>? opres = res.data;
-                        print("黑名单返回${opres![0].resultCode}");
-                        if (opres[0].resultCode == 0) {
+                        if (opres![0].resultCode == 0) {
                           Utils.toast("操作成功");
                         } else {
                           Utils.toast("操作失败");
@@ -76,8 +75,7 @@ class AddToBlackListState extends State<AddToBlackList> {
                       ]);
                       if (res.code == 0) {
                         List<V2TimFriendOperationResult>? opres = res.data;
-                        print("黑名单返回${opres![0].resultCode}");
-                        if (opres[0].resultCode == 0) {
+                        if (opres![0].resultCode == 0) {
                           Utils.toast("操作成功");
                         } else {
                           Utils.toast("操作失败");

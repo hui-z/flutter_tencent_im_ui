@@ -44,10 +44,8 @@ class SelfSignState extends State<SelfSign> {
                           ),
                         );
                         if (res.code == 0) {
-                          print("succcess");
                           Navigator.pop(context);
                         } else {
-                          print(res);
                         }
                       },
                       child: Text("确定"),

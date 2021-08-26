@@ -30,7 +30,6 @@ class BlackListState extends State<BlackList> {
         blackList = list!;
       });
     } else {
-      print("获取黑名单失败 ${res.desc} ${res.code} ");
     }
   }
 

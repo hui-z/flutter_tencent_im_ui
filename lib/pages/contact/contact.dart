@@ -325,7 +325,6 @@ class ConcatState extends State<Contact> {
         }
       }
     } else {
-      print("获取加群申请失败${res.desc}");
     }
   }
 

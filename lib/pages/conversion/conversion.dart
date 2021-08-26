@@ -10,10 +10,10 @@ import 'package:tencent_im_sdk_plugin/tencent_im_sdk_plugin.dart';
 import 'package:tencent_im_sdk_plugin/models/v2_tim_value_callback.dart';
 import 'package:tencent_im_sdk_plugin/models/v2_tim_conversation.dart';
 
-import 'component/addFaceMsg.dart';
-import 'component/conversationInner.dart';
+import 'component/add_face_msg.dart';
+import 'component/conversation_inner.dart';
 import 'component/more_send_function.dart';
-import 'component/msgInput.dart';
+import 'component/msg_input.dart';
 
 class Conversion extends StatefulWidget {
   Conversion(this.conversationID);
@@ -67,7 +67,6 @@ class ConversionState extends State<Conversion> {
     late String? _groupID;
     late String? _userID;
     if (data.code == 0) {
-      print("!!!${data.data!.lastMessage == null}");
       if (data.data!.lastMessage == null)
         _msgID = "";
       else
@@ -75,9 +74,7 @@ class ConversionState extends State<Conversion> {
       _type = data.data!.type!;
       _groupID = data.data!.groupID == null ? "" : data.data!.groupID;
       _userID = data.data!.userID == null ? "" : data.data!.userID;
-      print("_type $_type");
-      print('_userID $_userID');
-      print('_groupID $_groupID');
+
       setState(() {
         type = _type;
         lastMessageId = _msgID!;
@@ -109,14 +106,11 @@ class ConversionState extends State<Conversion> {
         if (listRes.code == 0) {
           List<V2TimMessage> list = listRes.data!;
           if (list.length == 0) {
-            print('没有消息啊！！！');
             list = List.empty(growable: true);
           }
-          print("conversationID $conversationID 消息数量 ${listRes.data!.length}");
           Provider.of<CurrentMessageListModel>(context, listen: false)
               .addMessage(conversationID, list);
         } else {
-          print('conversationID 获取历史消息失败 ${listRes.desc}');
         }
       });
     } else if (_type == 2) {
@@ -129,19 +123,14 @@ class ConversionState extends State<Conversion> {
       )
           .then((listRes) {
         if (listRes.code == 0) {
-          print(
-              "conversationID listRes.data ${listRes.data!.length} $_groupID ");
           List<V2TimMessage> list = listRes.data!;
           if (list.length == 0) {
-            print('conversationID 没有消息啊！！！');
             list = List.empty(growable: true);
           } else {
             Provider.of<CurrentMessageListModel>(context, listen: false)
                 .addMessage(conversationID, list);
           }
-          print("conversationID $conversationID 消息数量 ${listRes.data!.length}");
         } else {
-          print('conversationID 获取历史消息失败');
         }
       });
     }

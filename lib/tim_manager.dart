@@ -50,8 +50,6 @@ class TIMManager {
        prefs.remove('phone');
        prefs.remove('code');
      } catch (err) {
-       print("someError");
-       print(err);
      }
      if (result != null) {
        result();

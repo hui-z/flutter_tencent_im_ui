@@ -159,7 +159,6 @@ class AlertDialogState extends State<Alert> {
           child: new Text('取消'),
           onPressed: () {
             Navigator.of(context).pop();
-            print('取消');
           },
         ),
         new ElevatedButton(
@@ -179,7 +178,6 @@ class AlertDialogState extends State<Alert> {
                 Utils.toast('修改成功');
               }
             });
-            print('确定');
           },
         )
       ],

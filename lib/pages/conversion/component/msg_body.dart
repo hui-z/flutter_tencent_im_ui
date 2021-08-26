@@ -6,12 +6,12 @@ import 'package:tencent_im_sdk_plugin/enum/message_elem_type.dart';
 import 'package:tencent_im_sdk_plugin/enum/message_status.dart';
 import 'package:tencent_im_sdk_plugin/models/v2_tim_message.dart';
 
-import 'SystemMessage.dart';
-import 'customMessage.dart';
-import 'fileMessage.dart';
-import 'imageMessage.dart';
-import 'soundMessage.dart';
-import 'videoMessage.dart';
+import 'system_message.dart';
+import 'custom_message.dart';
+import 'file_message.dart';
+import 'image_message.dart';
+import 'sound_message.dart';
+import 'video_message.dart';
 
 class MsgBody extends StatelessWidget {
   TextDirection textDirection = TextDirection.rtl;
@@ -105,22 +105,6 @@ class MsgBody extends StatelessWidget {
                 height: 1.4,
               ),
             ),
-            // Container(
-            //   margin: EdgeInsets.only(left: 5),
-            //   child: InkWell(
-            //     onTap: () {
-
-            //     },
-            //     child: Text(
-            //       "重新发送",
-            //       style: TextStyle(
-            //         fontSize: 10,
-            //         color: CommonColors.getThemeColor(),
-            //         height: 1.4,
-            //       ),
-            //     ),
-            //   ),
-            // )
           ],
         );
       }
@@ -140,7 +124,6 @@ class MsgBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // print("当前消息类型 ${msgobj.elemType} ${message}");
 
     return Expanded(
       child: Container(

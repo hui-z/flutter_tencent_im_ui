@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_tencent_im_ui/common/colors.dart';
 import 'package:flutter_tencent_im_ui/provider/currentMessageList.dart';
-import 'package:flutter_tencent_im_ui/provider/keybooadshow.dart';
+import 'package:flutter_tencent_im_ui/provider/keybooad_show.dart';
 import 'package:provider/provider.dart';
 import 'package:tencent_im_sdk_plugin/models/v2_tim_message.dart';
 import 'package:tencent_im_sdk_plugin/tencent_im_sdk_plugin.dart';
@@ -21,8 +21,9 @@ class TextMsg extends StatefulWidget {
   final setRecordBackStatus;
   final ValueChanged<String> onChanged;
 
-  TextMsg(Key key,
-      this.toUser, this.type, this.recordBackStatus, this.setRecordBackStatus, this.onChanged) : super(key: key);
+  TextMsg(Key key, this.toUser, this.type, this.recordBackStatus,
+      this.setRecordBackStatus, this.onChanged)
+      : super(key: key);
 
   @override
   State<StatefulWidget> createState() => TextMsgState();
@@ -55,14 +56,12 @@ class TextMsgState extends State<TextMsg> {
   @override
   void initState() {
     super.initState();
-    print("widget.toUser${widget.toUser}");
     _audioRecorder.hasPermission().then((value) {
-      print("hasPermission $value");
     });
   }
 
 // 动画循环（Demo使用的api因为兼容性问题无法监听音量因此直接使用循环动画）
-  loopAnimeTimer() {
+  loopAnimationTimer() {
     List<String> list = [
       "images/voice_volume_1.png",
       "images/voice_volume_2.png",
@@ -86,7 +85,7 @@ class TextMsgState extends State<TextMsg> {
     });
   }
 
-  cancelLoopAnimeTimer() {
+  cancelLoopAnimationTimer() {
     if (_timer != null) {
       _timer!.cancel();
       _timer = null;
@@ -161,11 +160,11 @@ class TextMsgState extends State<TextMsg> {
       TencentImSDKPlugin.v2TIMManager
           .getMessageManager()
           .sendSoundMessage(
-        soundPath: recordPath,
-        receiver: (widget.type == 1 ? widget.toUser : ""),
-        groupID: (widget.type == 2 ? widget.toUser : ""),
-        duration: _duration.ceil(),
-      )
+            soundPath: recordPath,
+            receiver: (widget.type == 1 ? widget.toUser : ""),
+            groupID: (widget.type == 2 ? widget.toUser : ""),
+            duration: _duration.ceil(),
+          )
           .then((sendRes) {
         // 发送成功
         if (sendRes.code == 0) {
@@ -176,7 +175,6 @@ class TextMsgState extends State<TextMsg> {
           list.add(sendRes.data!);
           Provider.of<CurrentMessageListModel>(context, listen: false)
               .addMessage(key, list);
-          print('发送成功');
         }
       });
     }
@@ -190,11 +188,9 @@ class TextMsgState extends State<TextMsg> {
     File soundFile = new File(path);
     soundFile.createSync();
     setGoBackForbid(false);
-    print("path: $path");
     try {
       await _audioRecorder.start(path: path);
     } catch (err) {
-      print(err);
     }
     setState(() {
       isRecording = true;
@@ -211,9 +207,8 @@ class TextMsgState extends State<TextMsg> {
       isRecording = false;
       endTime = DateTime.now();
     });
-    cancelLoopAnimeTimer();
+    cancelLoopAnimationTimer();
     setGoBackForbid(true);
-    //  print("让我看看finalPath,$lastPath");
     return soundPath;
   }
 
@@ -223,99 +218,94 @@ class TextMsgState extends State<TextMsg> {
     return Expanded(
       child: isKeyboradShow
           ? PhysicalModel(
-        color: Colors.transparent,
-        borderRadius: BorderRadius.circular(4),
-        clipBehavior: Clip.antiAlias,
-        child: Container(
-          height: 34,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(4),
-            color: Colors.white,
-          ),
-          child: TextField(
-            controller: inputController,
-            onChanged: (text) {
-              widget.onChanged(text);
-            },
-            focusNode: _node,
-            autocorrect: false,
-            textAlign: TextAlign.left,
-            keyboardType: TextInputType.text,
-            textInputAction: TextInputAction.newline,
-            cursorColor: CommonColors.getThemeColor(),
-            decoration: InputDecoration(
-              border: InputBorder.none,
-              isCollapsed: true,
-              isDense: true,
-              contentPadding: EdgeInsets.only(
-                top: 9,
-                bottom: 0,
+              color: Colors.transparent,
+              borderRadius: BorderRadius.circular(4),
+              clipBehavior: Clip.antiAlias,
+              child: Container(
+                height: 34,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(4),
+                  color: Colors.white,
+                ),
+                child: TextField(
+                  controller: inputController,
+                  onChanged: (text) {
+                    widget.onChanged(text);
+                  },
+                  focusNode: _node,
+                  autocorrect: false,
+                  textAlign: TextAlign.left,
+                  keyboardType: TextInputType.text,
+                  textInputAction: TextInputAction.newline,
+                  cursorColor: CommonColors.getThemeColor(),
+                  decoration: InputDecoration(
+                    border: InputBorder.none,
+                    isCollapsed: true,
+                    isDense: true,
+                    contentPadding: EdgeInsets.only(
+                      top: 9,
+                      bottom: 0,
+                    ),
+                  ),
+                  style: TextStyle(
+                    fontSize: 16,
+                  ),
+                  minLines: 1,
+                ),
+              ),
+            )
+          : GestureDetector(
+              onLongPressStart: (e) async {
+                setState(() {
+                  isRecording = true;
+                  isSend = true;
+                });
+                buildOverLayView(context); //显示图标
+                loopAnimationTimer();
+                await start();
+              },
+              onLongPressEnd: (e) async {
+                bool isSendLocal = true;
+                if (e.localPosition.dx < 0 ||
+                    e.localPosition.dy < 0 ||
+                    e.localPosition.dy > 40) {
+                  // 取消了发送
+                  isSendLocal = false;
+                }
+                try {
+                  if (overlayEntry != null) {
+                    overlayEntry!.remove();
+                    overlayEntry = null;
+                  }
+                } catch (err) {}
+                setState(() {
+                  isRecording = false;
+                  isSend = isSendLocal;
+                });
+                await stop();
+                sendRecord(soundPath);
+              },
+              child: Container(
+                height: 34,
+                color: isRecording
+                    ? CommonColors.getGapColor()
+                    : CommonColors.getWitheColor(),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        '按住说话',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                        ),
+                      ),
+                    )
+                  ],
+                ),
               ),
             ),
-            style: TextStyle(
-              fontSize: 16,
-            ),
-            minLines: 1,
-          ),
-        ),
-      )
-          : GestureDetector(
-        onLongPressStart: (e) async {
-          setState(() {
-            isRecording = true;
-            isSend = true;
-          });
-          buildOverLayView(context); //显示图标
-          loopAnimeTimer();
-          //await recordPlugin.start();
-          await start();
-          //file是文件名，比如 file = Platform.isIOS ? 'ios.m4a' : 'android.mp4'
-          print("应该开啊了");},
-        onLongPressEnd: (e) async {
-          bool isSendLocal = true;
-          if (e.localPosition.dx < 0 ||
-              e.localPosition.dy < 0 ||
-              e.localPosition.dy > 40) {
-            // 取消了发送
-            isSendLocal = false;
-            print("取消了");
-          }
-          try {
-            if (overlayEntry != null) {
-              overlayEntry!.remove();
-              overlayEntry = null;
-            }
-          } catch (err) {}
-          setState(() {
-            isRecording = false;
-            isSend = isSendLocal;
-          });
-          // await recordPlugin.stop();
-          await stop();
-          sendRecord(soundPath);
-          print("结束");
-        },
-        child: Container(
-          height: 34,
-          color: isRecording
-              ? CommonColors.getGapColor()
-              : CommonColors.getWitheColor(),
-          child: Row(
-            children: [
-              Expanded(
-                child: Text(
-                  '按住说话',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 14,
-                  ),
-                ),
-              )
-            ],
-          ),
-        ),
-      ),
     );
   }
 }
