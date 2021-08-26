@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_tencent_im_ui/common/colors.dart';
-import 'package:flutter_tencent_im_ui/pages/conversationInfo/conversationInfo.dart';
-import 'package:flutter_tencent_im_ui/pages/userProfile/userProfile.dart';
 import 'package:flutter_tencent_im_ui/provider/currentMessageList.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
@@ -16,8 +14,9 @@ import 'component/more_send_function.dart';
 import 'component/msg_input.dart';
 
 class Conversion extends StatefulWidget {
-  Conversion(this.conversationID);
+  Conversion(this.conversationID, this.appBar);
   final String conversationID;
+  final PreferredSizeWidget? appBar;
   @override
   State<StatefulWidget> createState() => ConversionState(conversationID);
 }
@@ -44,17 +43,6 @@ class ConversionState extends State<Conversion> {
     super.initState();
 
     getConversion();
-  }
-
-  openProfile(context) {
-    String? id = type == 1 ? userID : groupID;
-    Navigator.push(
-      context,
-      new MaterialPageRoute(
-        builder: (context) =>
-        type == 1 ? UserProfile(id!) : ConversationInfo(id!, type),
-      ),
-    );
   }
 
   getConversion() async {
@@ -148,23 +136,7 @@ class ConversionState extends State<Conversion> {
         onWillPop: () async => recordBackStatus,
         child: Scaffold(
             resizeToAvoidBottomInset: !_isShowBottomView,
-            appBar: AppBar(
-              title: Text("会话"),
-              backgroundColor: CommonColors.getThemeColor(),
-              actions: [
-                IconButton(
-                  icon: Icon(
-                    Icons.account_box,
-                    color: CommonColors.getWitheColor(),
-                  ),
-                  onPressed: () {
-                    if (recordBackStatus) {
-                      openProfile(context);
-                    }
-                  },
-                )
-              ],
-            ),
+            appBar: widget.appBar,
             body: Stack(
               children: [
                 Column(

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_tencent_im_ui/common/hexToColor.dart';
+import 'package:flutter_tencent_im_ui/common/colors.dart';
 import 'package:flutter_tencent_im_ui/models/emoji/emoji.dart';
 import 'package:flutter_tencent_im_ui/utils/emojiData.dart';
 

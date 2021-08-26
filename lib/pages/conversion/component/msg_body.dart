@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_tencent_im_ui/common/colors.dart';
-import 'package:flutter_tencent_im_ui/common/hexToColor.dart';
 import 'package:tencent_im_sdk_plugin/enum/message_elem_type.dart';
 import 'package:tencent_im_sdk_plugin/enum/message_status.dart';
 import 'package:tencent_im_sdk_plugin/models/v2_tim_message.dart';
@@ -13,6 +12,7 @@ import 'image_message.dart';
 import 'sound_message.dart';
 import 'video_message.dart';
 
+// ignore: must_be_immutable
 class MsgBody extends StatelessWidget {
   TextDirection textDirection = TextDirection.rtl;
   CrossAxisAlignment crossAxisAlignment = CrossAxisAlignment.end;
@@ -23,7 +23,7 @@ class MsgBody extends StatelessWidget {
   int type = 1;
   late String name;
   late String message;
-  late V2TimMessage msgobj;
+  late V2TimMessage msgObj;
 
   MsgBody({
     messageText,
@@ -42,11 +42,12 @@ class MsgBody extends StatelessWidget {
     this.type = type;
     this.message = messageText;
     this.name = name;
-    this.msgobj = message;
+    this.msgObj = message;
   }
+
   String getMessageTime() {
     String time = '';
-    int timestamp = msgobj.timestamp! * 1000;
+    int timestamp = msgObj.timestamp! * 1000;
     DateTime timeDate = DateTime.fromMillisecondsSinceEpoch(timestamp);
     DateTime now = DateTime.now();
 
@@ -63,9 +64,9 @@ class MsgBody extends StatelessWidget {
   Widget getHandleBar() {
     Widget wid = new Container();
 
-    if (msgobj.isSelf != null) {
-      if (msgobj.status == MessageStatus.V2TIM_MSG_STATUS_SEND_SUCC) {
-        if (msgobj.isPeerRead != null && (msgobj.groupID == '')) {
+    if (msgObj.isSelf != null) {
+      if (msgObj.status == MessageStatus.V2TIM_MSG_STATUS_SEND_SUCC) {
+        if (msgObj.isPeerRead != null && (msgObj.groupID == '')) {
           //c2c消息已读
           wid = Text(
             "已读",
@@ -75,8 +76,8 @@ class MsgBody extends StatelessWidget {
             ),
           );
         }
-        if (msgobj.isPeerRead == false &&
-            (msgobj.groupID == null || msgobj.groupID == '')) {
+        if (msgObj.isPeerRead == false &&
+            (msgObj.groupID == null || msgObj.groupID == '')) {
           //c2c未读
           wid = Text(
             "未读",
@@ -87,7 +88,7 @@ class MsgBody extends StatelessWidget {
           );
         }
       }
-      if (msgobj.status == MessageStatus.V2TIM_MSG_STATUS_SEND_FAIL) {
+      if (msgObj.status == MessageStatus.V2TIM_MSG_STATUS_SEND_FAIL) {
         wid = Row(
           mainAxisAlignment: MainAxisAlignment.end,
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -108,7 +109,7 @@ class MsgBody extends StatelessWidget {
           ],
         );
       }
-      if (msgobj.status == MessageStatus.V2TIM_MSG_STATUS_SENDING) {
+      if (msgObj.status == MessageStatus.V2TIM_MSG_STATUS_SENDING) {
         wid = Text(
           "发送中...",
           style: TextStyle(
@@ -165,25 +166,25 @@ class MsgBody extends StatelessWidget {
                     ),
                     borderRadius: BorderRadius.circular(6),
                   ),
-                  child: msgobj.elemType ==
+                  child: msgObj.elemType ==
                           MessageElemType.V2TIM_ELEM_TYPE_IMAGE //图片
-                      ? ImageMessage(msgobj)
-                      : msgobj.elemType ==
+                      ? ImageMessage(msgObj)
+                      : msgObj.elemType ==
                               MessageElemType.V2TIM_ELEM_TYPE_FACE //表情
                           ? Container(
-                              child: Text("表情 ${msgobj.faceElem!.data}"),
+                              child: Text("表情 ${msgObj.faceElem!.data}"),
                             )
-                          : msgobj.elemType ==
+                          : msgObj.elemType ==
                                   MessageElemType.V2TIM_ELEM_TYPE_SOUND //语音
-                              ? SoundMessage(msgobj)
-                              : msgobj.elemType ==
+                              ? SoundMessage(msgObj)
+                              : msgObj.elemType ==
                                       MessageElemType.V2TIM_ELEM_TYPE_VIDEO //视频
-                                  ? VideoMessage(msgobj)
-                                  : msgobj.elemType ==
+                                  ? VideoMessage(msgObj)
+                                  : msgObj.elemType ==
                                           MessageElemType
                                               .V2TIM_ELEM_TYPE_CUSTOM //自定义消息
-                                      ? CustomMessage(msgobj)
-                                      : msgobj.elemType == 1 //文字
+                                      ? CustomMessage(msgObj)
+                                      : msgObj.elemType == 1 //文字
                                           ? Text(
                                               message,
                                               textAlign: textAlign,
@@ -194,16 +195,16 @@ class MsgBody extends StatelessWidget {
                                                     : hexToColor('000000'),
                                               ),
                                             )
-                                          : msgobj.elemType ==
+                                          : msgObj.elemType ==
                                                   MessageElemType
                                                       .V2TIM_ELEM_TYPE_GROUP_TIPS //系统消息
-                                              ? SystemMessage(msgobj)
-                                              : msgobj.elemType ==
+                                              ? SystemMessage(msgObj)
+                                              : msgObj.elemType ==
                                                       MessageElemType
                                                           .V2TIM_ELEM_TYPE_FILE //文件消息
-                                                  ? FileMessage(msgobj)
+                                                  ? FileMessage(msgObj)
                                                   : Text(
-                                                      "未解析消息${msgobj.elemType}",
+                                                      "未解析消息${msgObj.elemType}",
                                                       textAlign: textAlign,
                                                       style: TextStyle(
                                                         fontSize: 16,

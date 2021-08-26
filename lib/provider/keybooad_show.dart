@@ -5,16 +5,6 @@ class KeyBoradModel with ChangeNotifier, DiagnosticableTreeMixin {
   bool _show = true;
   get show => _show;
 
-  showkeyborad() {
-    _show = true;
-    notifyListeners();
-  }
-
-  hidekeyborad() {
-    _show = false;
-    notifyListeners();
-  }
-
   setStatus(bool status) {
     _show = status;
     notifyListeners();

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:flutter_tencent_im_ui/common/avatar.dart';
 import 'package:flutter_tencent_im_ui/common/colors.dart';
-import 'package:flutter_tencent_im_ui/common/hexToColor.dart';
 import 'package:flutter_tencent_im_ui/pages/conversion/conversion.dart';
 import 'package:flutter_tencent_im_ui/provider/conversion.dart';
 import 'package:flutter_tencent_im_ui/utils/toast.dart';
@@ -136,7 +135,7 @@ class ConversionItem extends StatelessWidget {
     Navigator.push(
       context,
       new MaterialPageRoute(
-        builder: (context) => Conversion(conversationID),
+        builder: (context) => Conversion(conversationID, AppBar(title: Text(name ?? ''))),
       ),
     );
   }

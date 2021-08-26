@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_tencent_im_ui/common/hexToColor.dart';
+import 'package:flutter_tencent_im_ui/common/colors.dart';
 import 'package:flutter_tencent_im_ui/pages/conversion/dataInterface/advanceMsgList.dart';
 import 'package:flutter_tencent_im_ui/provider/currentMessageList.dart';
 import 'package:flutter_tencent_im_ui/utils/toast.dart';
@@ -98,7 +98,7 @@ class MoreSendFunction extends StatelessWidget {
   }
 
   sendVideoMsg(context) async {
-    final video = await picker.getVideo(
+    final video = await picker.pickVideo(
       source: ImageSource.camera,
       preferredCameraDevice: CameraDevice.front,
     );
@@ -151,9 +151,9 @@ class MoreSendFunction extends StatelessWidget {
     }
   }
 
-  sendImageMsg(context, checktype) async {
-    final image = await picker.getImage(
-        source: checktype == 0 ? ImageSource.camera : ImageSource.gallery);
+  sendImageMsg(context, checkType) async {
+    final image = await picker.pickImage(
+        source: checkType == 0 ? ImageSource.camera : ImageSource.gallery);
     if (image == null) {
       return;
     }
@@ -244,7 +244,7 @@ class MoreSendFunction extends StatelessWidget {
           groupID: type == 2 ? toUser : "",
         );
     if (res.code == 0) {
-      String key = (type == 1 ? "c2c_${toUser}" : "group_${toUser}");
+      String key = (type == 1 ? "c2c_$toUser" : "group_$toUser");
       List<V2TimMessage> list = new List.empty(growable: true);
       V2TimMessage? msg = res.data;
       // 添加新消息
