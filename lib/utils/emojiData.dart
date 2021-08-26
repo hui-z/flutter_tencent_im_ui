@@ -856,18 +856,16 @@ List<Map<String, Object>> emojiData = [
 ];
 
 class EmojiItem extends StatelessWidget {
-  EmojiItem({name, unicode, toUser, type, close}) {
+  EmojiItem({name, unicode, toUser, type}) {
     this.name = name;
     this.unicode = unicode;
     this.toUser = toUser;
     this.type = type;
-    this.close = close;
   }
   String? name;
   int? unicode;
   String? toUser;
   int? type;
-  Function? close;
   @override
   Widget build(BuildContext context) {
     return InkWell(
@@ -892,7 +890,6 @@ class EmojiItem extends StatelessWidget {
           Provider.of<CurrentMessageListModel>(context, listen: false)
               .addMessage(key, list);
           print('发送成功');
-          close!();
         } else {
           print('发送失败${sendRes.desc}');
         }
@@ -908,3 +905,4 @@ class EmojiItem extends StatelessWidget {
     );
   }
 }
+

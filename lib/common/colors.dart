@@ -1,4 +1,3 @@
-
 import 'package:flutter_tencent_im_ui/common/hexToColor.dart';
 
 class CommonColors {
@@ -9,6 +8,7 @@ class CommonColors {
   static const String ThemeColorHexString = '006fff';
   static const String WightColorHexString = 'ffffff';
   static const String RedColor = 'FA5151';
+  static const String GreenColor = '06ad56';
 
   static getTextBasicColor() {
     return hexToColor(TextBasicColorHexString);
@@ -36,5 +36,9 @@ class CommonColors {
 
   static getReadColor() {
     return hexToColor(RedColor);
+  }
+
+  static getGreenColor() {
+    return hexToColor(GreenColor);
   }
 }

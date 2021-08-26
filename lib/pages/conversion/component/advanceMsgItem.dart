@@ -31,6 +31,7 @@ class AdvanceMsgItem extends StatelessWidget {
               ),
             ),
             Container(
+              padding: EdgeInsets.only(top: 8.0),
               child: Text(
                 list.name,
                 style: TextStyle(

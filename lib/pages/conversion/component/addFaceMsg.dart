@@ -5,61 +5,36 @@ import 'package:flutter_tencent_im_ui/models/emoji/emoji.dart';
 import 'package:flutter_tencent_im_ui/utils/emojiData.dart';
 
 class FaceMsg extends StatelessWidget {
-  FaceMsg(this.toUser, this.type);
+  FaceMsg(this.toUser, this.type, this.height);
   final String toUser;
   final int type;
-
-  Future<int?> openPanel(context) {
-    close() {
-      Navigator.pop(context);
-    }
-
-    return showModalBottomSheet<int>(
-      context: context,
-      builder: (BuildContext context) {
-        return Container(
-          height: 246,
-          color: hexToColor('ededed'),
-          padding: EdgeInsets.fromLTRB(24, 16, 24, 16),
-          child: GridView(
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 8,
-              childAspectRatio: 1,
-              // mainAxisSpacing: 23,
-              // crossAxisSpacing: 12,
-            ),
-            children: emojiData.map(
-              (e) {
-                var item = Emoji.fromJson(e);
-                return new EmojiItem(
-                  name: item.name,
-                  unicode: item.unicode,
-                  toUser: toUser,
-                  type: type,
-                  close: close,
-                );
-              },
-            ).toList(),
-          ),
-        );
-      },
-    );
-  }
+  final double height;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 56,
-      height: 56,
-      child: IconButton(
-          icon: Icon(
-            Icons.tag_faces,
-            size: 28,
-            color: Colors.black,
-          ),
-          onPressed: () async {
-            await openPanel(context);
-          }),
+      height: height,
+      color: hexToColor('ededed'),
+      padding: EdgeInsets.fromLTRB(24, 16, 24, 16),
+      child: GridView(
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 8,
+          childAspectRatio: 1,
+          // mainAxisSpacing: 23,
+          // crossAxisSpacing: 12,
+        ),
+        children: emojiData.map(
+              (e) {
+            var item = Emoji.fromJson(e);
+            return new EmojiItem(
+              name: item.name,
+              unicode: item.unicode,
+              toUser: toUser,
+              type: type,
+            );
+          },
+        ).toList(),
+      ),
     );
   }
 }

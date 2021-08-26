@@ -1,9 +1,9 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_tencent_im_ui/common/colors.dart';
+import 'package:flutter_dynamic_widgets/dynamic_widgets/basic/widget.dart';
+import 'package:flutter_dynamic_widgets/dynamic_widgets/config/widget_config.dart';
 import 'package:tencent_im_sdk_plugin/models/v2_tim_message.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class CustomMessage extends StatefulWidget {
   CustomMessage(this.message);
@@ -21,53 +21,13 @@ class CustomMessageState extends State<CustomMessage> {
   }
 
   Widget showMessage() {
-    Widget res;
-    String? data = message!.customElem!.data;
-    try {
-      var version = json.decode(data!)['version'];
-      String text = json.decode(data)['text'];
-      String link = json.decode(data)['link'];
-      if (version == 4) {
-        print(data);
-        String businessID = json.decode(data)['businessID'];
-        if (businessID == 'group_create') {
-          res = Container(
-            child: Text("${json.decode(data)['opUser']}创建群组"),
-          );
-        } else {
-          res = Container(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(text),
-                InkWell(
-                  onTap: () {
-                    launch(
-                      link,
-                    );
-                  },
-                  child: Text(
-                    '点击查看>>>',
-                    textAlign: TextAlign.start,
-                    style: TextStyle(
-                      color: CommonColors.getThemeColor(),
-                    ),
-                  ),
-                )
-              ],
-            ),
-          );
-        }
-      } else {
-        res = Text(
-          '自定义消息未解析成功 $data',
-        );
-      }
-    } catch (err) {
-      res = Text('自定义消息解析失败 $data');
-    }
+    Widget? res;
 
-    return res;
+    Map? data = json.decode(message?.customElem?.data ?? '');
+    res = DynamicWidgetBuilder.buildWidget(DynamicWidgetConfig.fromJson(data ?? {}), context: context, event: (eventName) {
+
+    });
+    return res ?? SizedBox();
   }
 
   @override

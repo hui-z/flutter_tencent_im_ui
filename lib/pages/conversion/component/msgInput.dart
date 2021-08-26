@@ -1,29 +1,61 @@
+import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
 import 'addAdvanceMsg.dart';
-import 'addFaceMsg.dart';
 import 'addTextMsg.dart';
 import 'addVoiceMsg.dart';
 
-class MsgInput extends StatelessWidget {
-  MsgInput(
-      this.toUser, this.type, this.recordBackStatus, this.setRecordBackStatus);
+class MsgInput extends StatefulWidget {
+  MsgInput(this.toUser, this.type, this.recordBackStatus,
+      this.setRecordBackStatus, this.moreBtnClick, this.faceBtnClick);
   final String toUser;
   final int type;
-  bool recordBackStatus;
+  final bool recordBackStatus;
   final setRecordBackStatus;
+  final VoidCallback moreBtnClick;
+  final VoidCallback faceBtnClick;
+
+  @override
+  _MsgInputState createState() => _MsgInputState();
+}
+
+class _MsgInputState extends State<MsgInput> {
+  String? sendText;
+  GlobalKey<AdvanceMsgState> _advanceMsgKey = GlobalKey();
+  GlobalKey<TextMsgState> _textMsgKey = GlobalKey();
+
   @override
   Widget build(BuildContext context) {
-    print("toUser$toUser $type ***** MsgInput");
+    print("toUser${widget.toUser} ${widget.type} ***** MsgInput");
 
     return Container(
-      height: 55,
-      child: Row(
+      child: Column(
         children: [
-          VoiceMsg(toUser, type),
-          TextMsg(toUser, type, recordBackStatus, setRecordBackStatus),
-          FaceMsg(toUser, type),
-          AdvanceMsg(toUser, type),
+          Row(
+            children: [
+              VoiceMsg(widget.toUser, widget.type),
+              TextMsg(_textMsgKey, widget.toUser, widget.type,
+                  widget.recordBackStatus, widget.setRecordBackStatus, (text) {
+                    _advanceMsgKey.currentState?.updateSendButtonStatus(text);
+                  }),
+              Container(
+                width: 44,
+                height: 44,
+                child: IconButton(
+                    icon: Icon(
+                      Icons.tag_faces,
+                      size: 30,
+                      color: Colors.black,
+                    ),
+                    onPressed: widget.faceBtnClick),
+              ),
+              AdvanceMsg(_advanceMsgKey, widget.toUser, widget.type, sendText,
+                      () {
+                    sendText = null;
+                    _textMsgKey.currentState?.clearInput();
+                  }, widget.moreBtnClick),
+            ],
+          )
         ],
       ),
     );

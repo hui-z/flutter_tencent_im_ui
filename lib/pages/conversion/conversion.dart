@@ -3,13 +3,16 @@ import 'package:flutter_tencent_im_ui/common/colors.dart';
 import 'package:flutter_tencent_im_ui/pages/conversationInfo/conversationInfo.dart';
 import 'package:flutter_tencent_im_ui/pages/userProfile/userProfile.dart';
 import 'package:flutter_tencent_im_ui/provider/currentMessageList.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:tencent_im_sdk_plugin/models/v2_tim_message.dart';
 import 'package:tencent_im_sdk_plugin/tencent_im_sdk_plugin.dart';
 import 'package:tencent_im_sdk_plugin/models/v2_tim_value_callback.dart';
 import 'package:tencent_im_sdk_plugin/models/v2_tim_conversation.dart';
 
+import 'component/addFaceMsg.dart';
 import 'component/conversationInner.dart';
+import 'component/more_send_function.dart';
 import 'component/msgInput.dart';
 
 class Conversion extends StatefulWidget {
@@ -27,11 +30,15 @@ class ConversionState extends State<Conversion> {
   String? groupID;
   List<V2TimMessage> msgList = List.empty(growable: true);
 
-  Icon? righTopIcon;
-  bool isreverse = true;
+  Icon? rightTopIcon;
+  bool isReverse = true;
   bool recordBackStatus = true; // 录音键按下时无法返回
   List<V2TimMessage> currentMessageList = List.empty(growable: true);
   ConversionState(this.conversationID);
+  double? keyboardHeight;
+  bool _isShowBottomView = false;
+  Widget? bottomView;
+  final _picker = ImagePicker();
 
   void initState() {
     super.initState();
@@ -45,7 +52,7 @@ class ConversionState extends State<Conversion> {
       context,
       new MaterialPageRoute(
         builder: (context) =>
-            type == 1 ? UserProfile(id!) : ConversationInfo(id!, type),
+        type == 1 ? UserProfile(id!) : ConversationInfo(id!, type),
       ),
     );
   }
@@ -76,15 +83,15 @@ class ConversionState extends State<Conversion> {
         lastMessageId = _msgID!;
         groupID = _groupID;
         userID = _userID;
-        righTopIcon = _type == 1
+        rightTopIcon = _type == 1
             ? Icon(
-                Icons.account_box,
-                color: CommonColors.getWitheColor(),
-              )
+          Icons.account_box,
+          color: CommonColors.getWitheColor(),
+        )
             : Icon(
-                Icons.supervisor_account,
-                color: CommonColors.getWitheColor(),
-              );
+          Icons.supervisor_account,
+          color: CommonColors.getWitheColor(),
+        );
       });
     }
 
@@ -95,9 +102,9 @@ class ConversionState extends State<Conversion> {
       TencentImSDKPlugin.v2TIMManager
           .getMessageManager()
           .getC2CHistoryMessageList(
-            userID: _userID == null ? "" : _userID,
-            count: 100,
-          )
+        userID: _userID == null ? "" : _userID,
+        count: 100,
+      )
           .then((listRes) {
         if (listRes.code == 0) {
           List<V2TimMessage> list = listRes.data!;
@@ -117,9 +124,9 @@ class ConversionState extends State<Conversion> {
       TencentImSDKPlugin.v2TIMManager
           .getMessageManager()
           .getGroupHistoryMessageList(
-            groupID: _groupID == null ? "" : _groupID,
-            count: 100,
-          )
+        groupID: _groupID == null ? "" : _groupID,
+        count: 100,
+      )
           .then((listRes) {
         if (listRes.code == 0) {
           print(
@@ -151,35 +158,110 @@ class ConversionState extends State<Conversion> {
     return WillPopScope(
         onWillPop: () async => recordBackStatus,
         child: Scaffold(
-          appBar: AppBar(
-            title: Text("会话"),
-            backgroundColor: CommonColors.getThemeColor(),
-            actions: [
-              IconButton(
-                icon: Icon(
-                  Icons.account_box,
-                  color: CommonColors.getWitheColor(),
+            resizeToAvoidBottomInset: !_isShowBottomView,
+            appBar: AppBar(
+              title: Text("会话"),
+              backgroundColor: CommonColors.getThemeColor(),
+              actions: [
+                IconButton(
+                  icon: Icon(
+                    Icons.account_box,
+                    color: CommonColors.getWitheColor(),
+                  ),
+                  onPressed: () {
+                    if (recordBackStatus) {
+                      openProfile(context);
+                    }
+                  },
+                )
+              ],
+            ),
+            body: Stack(
+              children: [
+                Column(
+                  children: [
+                    Expanded(
+                      child: GestureDetector(
+                        child: ConversationInner(
+                            conversationID, type, userID, groupID, () {
+                          if (_isShowBottomView) {
+                            setState(() {
+                              _isShowBottomView = false;
+                            });
+                          }
+                        }),
+                        onTap: () {
+                          if (MediaQuery.of(context).viewInsets.bottom >= 50) {
+                            if (keyboardHeight == null) {
+                              keyboardHeight =
+                                  MediaQuery.of(context).viewInsets.bottom;
+                            }
+                            FocusScope.of(context).requestFocus(FocusNode());
+                          }
+                          if (_isShowBottomView) {
+                            setState(() {
+                              _isShowBottomView = false;
+                            });
+                          }
+                        },
+                      ),
+                    ),
+                    type == 0
+                        ? Container()
+                        : Padding(
+                      padding: const EdgeInsets.all(0.0),
+                      child: Center(
+                        child: MsgInput(
+                            type == 1 ? userID! : groupID!,
+                            type,
+                            recordBackStatus,
+                            setRecordBackStatus, () {
+                          FocusScope.of(context)
+                              .requestFocus(FocusNode());
+                          bottomView = MoreSendFunction(
+                            toUser: type == 1 ? userID! : groupID!,
+                            type: type,
+                            picker: _picker,
+                            height: keyboardHeight ?? 301,
+                          );
+                          setState(() {
+                            _isShowBottomView = true;
+                          });
+                        }, () {
+                          FocusScope.of(context)
+                              .requestFocus(FocusNode());
+                          bottomView = FaceMsg(
+                              type == 1 ? userID! : groupID!,
+                              type,
+                              keyboardHeight ?? 301);
+                          setState(() {
+                            _isShowBottomView = true;
+                          });
+                        }),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(0.0),
+                      child: Container(
+                          height: _isShowBottomView
+                              ? keyboardHeight ?? 301
+                              : MediaQuery.of(context).padding.bottom),
+                    )
+                  ],
                 ),
-                onPressed: () {
-                  recordBackStatus ? openProfile(context) : "";
-                },
-              )
-            ],
-          ),
-          body: Column(
-            children: [
-              Expanded(
-                child: ConversationInner(conversationID, type, userID, groupID),
-              ),
-              type == 0
-                  ? Container()
-                  : MsgInput(type == 1 ? userID! : groupID!, type,
-                      recordBackStatus, setRecordBackStatus),
-              Container(
-                height: MediaQuery.of(context).padding.bottom,
-              )
-            ],
-          ),
-        ));
+                _isShowBottomView
+                    ? Column(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+
+                    Column(
+                      children: [bottomView ?? SizedBox(),],
+                    )
+
+                  ],
+                )
+                    : SizedBox()
+              ],
+            )));
   }
 }

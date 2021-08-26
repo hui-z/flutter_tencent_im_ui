@@ -8,25 +8,68 @@ import 'package:tencent_im_sdk_plugin/tencent_im_sdk_plugin.dart';
 
 import 'sendMsg.dart';
 
+
 class ConversationInner extends StatefulWidget {
-  ConversationInner(this.conversationID, this.type, this.userID, this.groupID);
+  ConversationInner(this.conversationID, this.type, this.userID, this.groupID, this.scrollListener);
   String conversationID;
   int type;
   String? userID;
   String? groupID;
+  VoidCallback scrollListener;
   @override
   State<StatefulWidget> createState() => ConversationInnerState();
 }
 
-class ConversationInnerState extends State<ConversationInner> {
+class ConversationInnerState extends State<ConversationInner>
+    with WidgetsBindingObserver {
   List<V2TimMessage>? currentMessageList = List.empty(growable: true);
   ScrollController scrollController =
-      new ScrollController(initialScrollOffset: 0.0);
-  void initState() {
-    super.initState();
+  new ScrollController(initialScrollOffset: 0.0);
+  double _preBottom = 0.0;
+  double _bottom = 0.0;
+  bool _didChangeMetrics = false;
+
+  @override
+  void didChangeMetrics() {
+    _didChangeMetrics = true;
+
+    super.didChangeMetrics();
+    WidgetsBinding.instance?.addPersistentFrameCallback((timeStamp) {
+      if (!_didChangeMetrics) {
+        return;
+      }
+
+      _preBottom = _bottom;
+      _bottom = MediaQuery.of(context).viewInsets.bottom;
+
+      if (_preBottom != _bottom) {
+        WidgetsBinding.instance?.scheduleFrame();
+        return;
+      }
+
+      _didChangeMetrics = false;
+
+      scrollController.animateTo(scrollController.position.minScrollExtent, duration: Duration(
+        milliseconds: 300,
+      ), curve: Curves.decelerate);
+    });
   }
 
-  getHistroyList(currentMessageMap, messageList) {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance?.addObserver(this);
+    scrollController.addListener(widget.scrollListener);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance?.removeObserver(this);
+    scrollController.removeListener(widget.scrollListener);
+    super.dispose();
+  }
+
+  getHistoryList(currentMessageMap, messageList) {
     if (currentMessageMap != null) {
       messageList = currentMessageMap[widget.conversationID];
     }
@@ -84,7 +127,7 @@ class ConversationInnerState extends State<ConversationInner> {
     Map<String, List<V2TimMessage>> currentMessageMap =
         Provider.of<CurrentMessageListModel>(context).messageMap;
     List<V2TimMessage> messageList = List.empty(growable: true);
-    getHistroyList(currentMessageMap, messageList);
+    getHistoryList(currentMessageMap, messageList);
     print("添加了一条发送中的消息 刷新聊天列表");
     return Container(
       color: Colors.white,
@@ -92,17 +135,18 @@ class ConversationInnerState extends State<ConversationInner> {
         controller: scrollController,
         reverse: currentMessageList!.length > 6, //注意设置为反向
         padding: EdgeInsets.fromLTRB(12, 0, 12, 0),
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
         child: Column(
-          children:
-              (currentMessageList == null || currentMessageList!.length == 0)
-                  ? [Container()]
-                  : currentMessageList!.map(
-                      (e) {
-                        return SendMsg(e, Key(e.msgID ?? ""));
-                      },
-                    ).toList(),
-        ),
-      ),
+            children:
+            (currentMessageList == null || currentMessageList!.length == 0)
+            ? [Container()]
+                : currentMessageList!.map(
+            (e) {
+      return SendMsg(e, Key(e.msgID ?? ""));
+      },
+      ).toList(),
+    ),
+    ),
     );
   }
 }

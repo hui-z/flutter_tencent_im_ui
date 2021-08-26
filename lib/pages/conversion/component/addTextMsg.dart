@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -6,26 +5,24 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_tencent_im_ui/common/colors.dart';
 import 'package:flutter_tencent_im_ui/provider/currentMessageList.dart';
 import 'package:flutter_tencent_im_ui/provider/keybooadshow.dart';
-import 'package:flutter_tencent_im_ui/utils/toast.dart';
 import 'package:provider/provider.dart';
 import 'package:tencent_im_sdk_plugin/models/v2_tim_message.dart';
-import 'package:tencent_im_sdk_plugin/models/v2_tim_value_callback.dart';
 import 'package:tencent_im_sdk_plugin/tencent_im_sdk_plugin.dart';
 import 'package:record/record.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:math';
 import 'dart:async';
 import 'package:flutter_sound/flutter_sound.dart';
-// import 'package:flutter_sound/flutter_sound.dart'; // 为了解决安卓问题才引入的新插件
 
 class TextMsg extends StatefulWidget {
   final String toUser;
   final int type;
   final bool recordBackStatus;
   final setRecordBackStatus;
+  final ValueChanged<String> onChanged;
 
-  TextMsg(
-      this.toUser, this.type, this.recordBackStatus, this.setRecordBackStatus);
+  TextMsg(Key key,
+      this.toUser, this.type, this.recordBackStatus, this.setRecordBackStatus, this.onChanged) : super(key: key);
 
   @override
   State<StatefulWidget> createState() => TextMsgState();
@@ -34,25 +31,24 @@ class TextMsg extends StatefulWidget {
 class TextMsgState extends State<TextMsg> {
   bool isRecording = false;
   bool isSend = true;
+  bool isShowSendBtn = false;
   int _count = 0;
   TextEditingController inputController = new TextEditingController();
-  // FlutterPluginRecord recordPlugin = new FlutterPluginRecord();
   final _audioRecorder = Record();
   String soundPath = '';
   late Timer? _timer;
-  // FlutterSoundRecorder flutterSoundRecord =
-  //     new FlutterSoundRecorder(); // 为了解决安卓问题才引入的新插件
   OverlayEntry? overlayEntry;
   String voiceIco = "images/voice_volume_1.png";
 
   late DateTime startTime;
   late DateTime endTime;
 
+  FocusNode _node = FocusNode();
+
   @override
   void dispose() {
     super.dispose();
     _audioRecorder.stop();
-    // canceLoopAnimeTimer();
     _timer = null;
   }
 
@@ -63,70 +59,6 @@ class TextMsgState extends State<TextMsg> {
     _audioRecorder.hasPermission().then((value) {
       print("hasPermission $value");
     });
-
-    // recordPlugin.responseFromInit.listen((data) {
-    //   if (data) {
-    //   } else {
-    //     Utils.toast("初始化失败");
-    //   }
-    // });
-    // recordPlugin.response.listen((data) {
-    //   print("data.path:$data.path");
-    //   if (data.msg == "onStop") {
-    //     ///结束录制时会返回录制文件的地址方便上传服务器
-    //     if (isSend) {
-    //       TencentImSDKPlugin.v2TIMManager
-    //           .getMessageManager()
-    //           .sendSoundMessage(
-    //             soundPath: data.path!,
-    //             receiver: (widget.type == 1 ? widget.toUser : ""),
-    //             groupID: (widget.type == 2 ? widget.toUser : ""),
-    //             duration: data.audioTimeLength!.toInt(),
-    //           )
-    //           .then((sendRes) {
-    //         // 发送成功
-    //         if (sendRes.code == 0) {
-    //           String key = (widget.type == 1
-    //               ? "c2c_${widget.toUser}"
-    //               : "group_${widget.toUser}");
-    //           List<V2TimMessage> list = new List.empty(growable: true);
-    //           list.add(sendRes.data!);
-    //           Provider.of<CurrentMessageListModel>(context, listen: false)
-    //               .addMessage(key, list);
-    //           print('发送成功');
-    //         }
-    //       });
-    //     }
-    //   } else if (data.msg == "onStart") {}
-    // });
-    // recordPlugin.responseFromAmplitude.listen((data) {
-    //   var voiceData = double.parse(data.msg!);
-    // setState(() {
-    //   if (voiceData > 0 && voiceData < 0.1) {
-    //     voiceIco = "images/voice_volume_2.png";
-    //   } else if (voiceData > 0.2 && voiceData < 0.3) {
-    //     voiceIco = "images/voice_volume_3.png";
-    //   } else if (voiceData > 0.3 && voiceData < 0.4) {
-    //     voiceIco = "images/voice_volume_4.png";
-    //   } else if (voiceData > 0.4 && voiceData < 0.5) {
-    //     voiceIco = "images/voice_volume_5.png";
-    //   } else if (voiceData > 0.5 && voiceData < 0.6) {
-    //     voiceIco = "images/voice_volume_6.png";
-    //   } else if (voiceData > 0.6 && voiceData < 0.7) {
-    //     voiceIco = "images/voice_volume_7.png";
-    //   } else if (voiceData > 0.7 && voiceData < 1) {
-    //     voiceIco = "images/voice_volume_7.png";
-    //   } else {
-    //     voiceIco = "images/voice_volume_1.png";
-    //   }
-    //   if (overlayEntry != null) {
-    //     overlayEntry!.markNeedsBuild();
-    //   }
-    // });
-
-    //   print("振幅大小   " + voiceData.toString() + "  " + voiceIco);
-    // });
-    // recordPlugin.initRecordMp3();
   }
 
 // 动画循环（Demo使用的api因为兼容性问题无法监听音量因此直接使用循环动画）
@@ -154,7 +86,7 @@ class TextMsgState extends State<TextMsg> {
     });
   }
 
-  canceLoopAnimeTimer() {
+  cancelLoopAnimeTimer() {
     if (_timer != null) {
       _timer!.cancel();
       _timer = null;
@@ -191,7 +123,6 @@ class TextMsgState extends State<TextMsg> {
                         ),
                       ),
                       Container(
-//                      padding: EdgeInsets.only(right: 20, left: 20, top: 0),
                         child: Text(
                           "手指上滑,取消发送",
                           style: TextStyle(
@@ -213,35 +144,8 @@ class TextMsgState extends State<TextMsg> {
     }
   }
 
-  onSubmitted(String? s, context) async {
-    if (s == '' || s == null) {
-      return;
-    }
-    V2TimValueCallback<V2TimMessage> sendRes;
-    if (widget.type == 1) {
-      sendRes = await TencentImSDKPlugin.v2TIMManager
-          .sendC2CTextMessage(text: s, userID: widget.toUser);
-      print("发送信息简介$sendRes");
-      inspect(widget);
-    } else {
-      sendRes = await TencentImSDKPlugin.v2TIMManager
-          .sendGroupTextMessage(text: s, groupID: widget.toUser, priority: 1);
-    }
-
-    if (sendRes.code == 0) {
-      print('发送成功');
-      String key = (widget.type == 1
-          ? "c2c_${widget.toUser}"
-          : "group_${widget.toUser}");
-      List<V2TimMessage> list = List.empty(growable: true);
-      list.add(sendRes.data!);
-      Provider.of<CurrentMessageListModel>(context, listen: false)
-          .addMessage(key, list);
-      inputController.clear();
-    } else {
-      print(sendRes.desc);
-      Utils.toast("发送失败 ${sendRes.code} ${sendRes.desc}");
-    }
+  clearInput() {
+    inputController.clear();
   }
 
   // 1 可以跳转， 0 禁止
@@ -257,11 +161,11 @@ class TextMsgState extends State<TextMsg> {
       TencentImSDKPlugin.v2TIMManager
           .getMessageManager()
           .sendSoundMessage(
-            soundPath: recordPath,
-            receiver: (widget.type == 1 ? widget.toUser : ""),
-            groupID: (widget.type == 2 ? widget.toUser : ""),
-            duration: _duration.ceil(),
-          )
+        soundPath: recordPath,
+        receiver: (widget.type == 1 ? widget.toUser : ""),
+        groupID: (widget.type == 2 ? widget.toUser : ""),
+        duration: _duration.ceil(),
+      )
           .then((sendRes) {
         // 发送成功
         if (sendRes.code == 0) {
@@ -307,7 +211,7 @@ class TextMsgState extends State<TextMsg> {
       isRecording = false;
       endTime = DateTime.now();
     });
-    canceLoopAnimeTimer();
+    cancelLoopAnimeTimer();
     setGoBackForbid(true);
     //  print("让我看看finalPath,$lastPath");
     return soundPath;
@@ -315,107 +219,103 @@ class TextMsgState extends State<TextMsg> {
 
   @override
   Widget build(BuildContext context) {
-    bool isKeyboradshow = Provider.of<KeyBoradModel>(context).show;
+    bool isKeyboradShow = Provider.of<KeyBoradModel>(context).show;
     return Expanded(
-      child: isKeyboradshow
+      child: isKeyboradShow
           ? PhysicalModel(
-              color: Colors.transparent,
-              borderRadius: BorderRadius.circular(4),
-              clipBehavior: Clip.antiAlias,
-              child: Container(
-                height: 34,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(4),
-                  color: Colors.white,
-                ),
-                child: TextField(
-                  controller: inputController,
-                  onSubmitted: (s) {
-                    onSubmitted(s, context);
-                  },
-                  autocorrect: false,
-                  textAlign: TextAlign.left,
-                  keyboardType: TextInputType.text,
-                  textInputAction: TextInputAction.send,
-                  cursorColor: CommonColors.getThemeColor(),
-                  decoration: InputDecoration(
-                    border: InputBorder.none,
-                    isCollapsed: true,
-                    isDense: true,
-                    contentPadding: EdgeInsets.only(
-                      top: 9,
-                      bottom: 0,
-                    ),
-                  ),
-                  style: TextStyle(
-                    fontSize: 16,
-                  ),
-                  minLines: 1,
-                ),
-              ),
-            )
-          : GestureDetector(
-              onLongPressStart: (e) async {
-                setState(() {
-                  isRecording = true;
-                  isSend = true;
-                });
-                buildOverLayView(context); //显示图标
-                loopAnimeTimer();
-                //await recordPlugin.start();
-                await start();
-                //file是文件名，比如 file = Platform.isIOS ? 'ios.m4a' : 'android.mp4'
-                print("应该开啊了");
-                // await flutterSoundRecord.startRecorder(toFile: "fool");
-              },
-              onLongPressEnd: (e) async {
-                bool isSendLocal = true;
-                // Utils.toast("${e.localPosition.dx} ${e.localPosition.dy}");
-                if (e.localPosition.dx < 0 ||
-                    e.localPosition.dy < 0 ||
-                    e.localPosition.dy > 40) {
-                  // 取消了发送
-                  isSendLocal = false;
-                  print("取消了");
-                }
-                try {
-                  if (overlayEntry != null) {
-                    overlayEntry!.remove();
-                    overlayEntry = null;
-                  }
-                } catch (err) {}
-                setState(() {
-                  isRecording = false;
-                  isSend = isSendLocal;
-                });
-                // await recordPlugin.stop();
-                await stop();
-                sendRecord(soundPath);
-                print("结束");
-                // String? anURL = await flutterSoundRecord.stopRecorder();
-                // print("anURL:$anURL");
-              },
-              child: Container(
-                height: 34,
-                color: isRecording
-                    ? CommonColors.getGapColor()
-                    : CommonColors.getWitheColor(),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        '按住说话',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14,
-                        ),
-                      ),
-                    )
-                  ],
-                ),
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(4),
+        clipBehavior: Clip.antiAlias,
+        child: Container(
+          height: 34,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(4),
+            color: Colors.white,
+          ),
+          child: TextField(
+            controller: inputController,
+            onChanged: (text) {
+              widget.onChanged(text);
+            },
+            focusNode: _node,
+            autocorrect: false,
+            textAlign: TextAlign.left,
+            keyboardType: TextInputType.text,
+            textInputAction: TextInputAction.newline,
+            cursorColor: CommonColors.getThemeColor(),
+            decoration: InputDecoration(
+              border: InputBorder.none,
+              isCollapsed: true,
+              isDense: true,
+              contentPadding: EdgeInsets.only(
+                top: 9,
+                bottom: 0,
               ),
             ),
+            style: TextStyle(
+              fontSize: 16,
+            ),
+            minLines: 1,
+          ),
+        ),
+      )
+          : GestureDetector(
+        onLongPressStart: (e) async {
+          setState(() {
+            isRecording = true;
+            isSend = true;
+          });
+          buildOverLayView(context); //显示图标
+          loopAnimeTimer();
+          //await recordPlugin.start();
+          await start();
+          //file是文件名，比如 file = Platform.isIOS ? 'ios.m4a' : 'android.mp4'
+          print("应该开啊了");},
+        onLongPressEnd: (e) async {
+          bool isSendLocal = true;
+          if (e.localPosition.dx < 0 ||
+              e.localPosition.dy < 0 ||
+              e.localPosition.dy > 40) {
+            // 取消了发送
+            isSendLocal = false;
+            print("取消了");
+          }
+          try {
+            if (overlayEntry != null) {
+              overlayEntry!.remove();
+              overlayEntry = null;
+            }
+          } catch (err) {}
+          setState(() {
+            isRecording = false;
+            isSend = isSendLocal;
+          });
+          // await recordPlugin.stop();
+          await stop();
+          sendRecord(soundPath);
+          print("结束");
+        },
+        child: Container(
+          height: 34,
+          color: isRecording
+              ? CommonColors.getGapColor()
+              : CommonColors.getWitheColor(),
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  '按住说话',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                  ),
+                ),
+              )
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
