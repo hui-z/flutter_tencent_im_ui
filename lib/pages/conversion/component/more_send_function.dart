@@ -187,6 +187,7 @@ class MoreSendFunction extends StatelessWidget {
         .sendCustomMessage(
           data: json.encode({
             'widget': 'Column',
+            'id': 1,
             'children': [
               {
                 'widget': 'Text',
@@ -209,16 +210,6 @@ class MoreSendFunction extends StatelessWidget {
                       'style': {'color': 'FF9E9E9E', 'fontSize': 14.0}
                     }
                   },
-                  {
-                    'widget': 'RawMaterialButton',
-                    'child': {
-                      'widget': 'Text',
-                      'xVar': {
-                        'data': '加了个按钮',
-                        'style': {'color': 'FF4CAF50', 'fontSize': 14.0}
-                      }
-                    }
-                  },
                 ]
               },
               {
@@ -230,6 +221,9 @@ class MoreSendFunction extends StatelessWidget {
               },
               {
                 'widget': 'RawMaterialButton',
+                'eventName': [
+                  'onTap://update'
+                ],
                 'child': {
                   'widget': 'Text',
                   'xVar': {
