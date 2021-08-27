@@ -8,9 +8,10 @@ import 'package:tencent_im_sdk_plugin/tencent_im_sdk_plugin.dart';
 
 import 'send_msg.dart';
 
-
 class ConversationInner extends StatefulWidget {
-  ConversationInner(this.conversationID, this.type, this.userID, this.groupID, this.scrollListener);
+  ConversationInner(Key key, this.conversationID, this.type, this.userID,
+      this.groupID, this.scrollListener)
+      : super(key: key);
   final String conversationID;
   final int type;
   final String? userID;
@@ -25,7 +26,7 @@ class ConversationInnerState extends State<ConversationInner>
     with WidgetsBindingObserver {
   List<V2TimMessage>? currentMessageList = List.empty(growable: true);
   ScrollController scrollController =
-  new ScrollController(initialScrollOffset: 0.0);
+      new ScrollController(initialScrollOffset: 0.0);
   double _preBottom = 0.0;
   double _bottom = 0.0;
   bool _didChangeMetrics = false;
@@ -49,10 +50,7 @@ class ConversationInnerState extends State<ConversationInner>
       }
 
       _didChangeMetrics = false;
-
-      scrollController.animateTo(scrollController.position.minScrollExtent, duration: Duration(
-        milliseconds: 300,
-      ), curve: Curves.decelerate);
+      scrollToBottom();
     });
   }
 
@@ -68,6 +66,14 @@ class ConversationInnerState extends State<ConversationInner>
     WidgetsBinding.instance?.removeObserver(this);
     scrollController.removeListener(widget.scrollListener);
     super.dispose();
+  }
+
+  void scrollToBottom() {
+    scrollController.animateTo(scrollController.position.minScrollExtent,
+        duration: Duration(
+          milliseconds: 300,
+        ),
+        curve: Curves.decelerate);
   }
 
   getHistoryList(currentMessageMap, messageList) {
@@ -96,8 +102,7 @@ class ConversationInnerState extends State<ConversationInner>
           .markGroupMessageAsRead(groupID: widget.groupID!)
           .then((res) {
         if (res.code == 0) {
-        } else {
-        }
+        } else {}
       });
     }
     if (hasNoRead) {
@@ -107,12 +112,10 @@ class ConversationInnerState extends State<ConversationInner>
             .markC2CMessageAsRead(userID: widget.userID!)
             .then((res) {
           if (res.code == 0) {
-          } else {
-          }
+          } else {}
         });
       }
-    } else {
-    }
+    } else {}
   }
 
   @override
@@ -129,16 +132,16 @@ class ConversationInnerState extends State<ConversationInner>
         padding: EdgeInsets.fromLTRB(12, 0, 12, 0),
         keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
         child: Column(
-            children:
-            (currentMessageList == null || currentMessageList!.length == 0)
-            ? [Container()]
-                : currentMessageList!.map(
-            (e) {
-      return SendMsg(e, Key(e.msgID ?? ""));
-      },
-      ).toList(),
-    ),
-    ),
+          children:
+              (currentMessageList == null || currentMessageList!.length == 0)
+                  ? [Container()]
+                  : currentMessageList!.map(
+                      (e) {
+                        return SendMsg(e, Key(e.msgID ?? ""));
+                      },
+                    ).toList(),
+        ),
+      ),
     );
   }
 }

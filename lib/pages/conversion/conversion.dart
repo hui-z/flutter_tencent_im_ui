@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_tencent_im_ui/common/colors.dart';
 import 'package:flutter_tencent_im_ui/provider/currentMessageList.dart';
@@ -25,8 +27,8 @@ class ConversionState extends State<Conversion> {
   String conversationID;
   int type = 1;
   String lastMessageId = '';
-  String? userID;
-  String? groupID;
+  String? userID = '';
+  String? groupID = '';
   List<V2TimMessage> msgList = List.empty(growable: true);
 
   Icon? rightTopIcon;
@@ -38,11 +40,22 @@ class ConversionState extends State<Conversion> {
   bool _isShowBottomView = false;
   Widget? bottomView;
   final _picker = ImagePicker();
+  GlobalKey<ConversationInnerState> _conversationInnerKey = GlobalKey();
+  Timer? _timer;
+  bool isAutoScroll = false;
 
+  @override
   void initState() {
     super.initState();
 
     getConversion();
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    _timer = null;
+    super.dispose();
   }
 
   getConversion() async {
@@ -70,13 +83,13 @@ class ConversionState extends State<Conversion> {
         userID = _userID;
         rightTopIcon = _type == 1
             ? Icon(
-          Icons.account_box,
-          color: CommonColors.getWitheColor(),
-        )
+                Icons.account_box,
+                color: CommonColors.getWitheColor(),
+              )
             : Icon(
-          Icons.supervisor_account,
-          color: CommonColors.getWitheColor(),
-        );
+                Icons.supervisor_account,
+                color: CommonColors.getWitheColor(),
+              );
       });
     }
 
@@ -87,9 +100,9 @@ class ConversionState extends State<Conversion> {
       TencentImSDKPlugin.v2TIMManager
           .getMessageManager()
           .getC2CHistoryMessageList(
-        userID: _userID == null ? "" : _userID,
-        count: 100,
-      )
+            userID: _userID == null ? "" : _userID,
+            count: 100,
+          )
           .then((listRes) {
         if (listRes.code == 0) {
           List<V2TimMessage> list = listRes.data!;
@@ -98,17 +111,16 @@ class ConversionState extends State<Conversion> {
           }
           Provider.of<CurrentMessageListModel>(context, listen: false)
               .addMessage(conversationID, list);
-        } else {
-        }
+        } else {}
       });
     } else if (_type == 2) {
       // group
       TencentImSDKPlugin.v2TIMManager
           .getMessageManager()
           .getGroupHistoryMessageList(
-        groupID: _groupID == null ? "" : _groupID,
-        count: 100,
-      )
+            groupID: _groupID == null ? "" : _groupID,
+            count: 100,
+          )
           .then((listRes) {
         if (listRes.code == 0) {
           List<V2TimMessage> list = listRes.data!;
@@ -118,8 +130,7 @@ class ConversionState extends State<Conversion> {
             Provider.of<CurrentMessageListModel>(context, listen: false)
                 .addMessage(conversationID, list);
           }
-        } else {
-        }
+        } else {}
       });
     }
   }
@@ -143,9 +154,9 @@ class ConversionState extends State<Conversion> {
                   children: [
                     Expanded(
                       child: GestureDetector(
-                        child: ConversationInner(
+                        child: ConversationInner(_conversationInnerKey,
                             conversationID, type, userID, groupID, () {
-                          if (_isShowBottomView) {
+                          if (_isShowBottomView && !isAutoScroll) {
                             setState(() {
                               _isShowBottomView = false;
                             });
@@ -170,37 +181,49 @@ class ConversionState extends State<Conversion> {
                     type == 0
                         ? Container()
                         : Padding(
-                      padding: const EdgeInsets.all(0.0),
-                      child: Center(
-                        child: MsgInput(
-                            type == 1 ? userID! : groupID!,
-                            type,
-                            recordBackStatus,
-                            setRecordBackStatus, () {
-                          FocusScope.of(context)
-                              .requestFocus(FocusNode());
-                          bottomView = MoreSendFunction(
-                            toUser: type == 1 ? userID! : groupID!,
-                            type: type,
-                            picker: _picker,
-                            height: keyboardHeight ?? 301,
-                          );
-                          setState(() {
-                            _isShowBottomView = true;
-                          });
-                        }, () {
-                          FocusScope.of(context)
-                              .requestFocus(FocusNode());
-                          bottomView = FaceMsg(
-                              type == 1 ? userID! : groupID!,
-                              type,
-                              keyboardHeight ?? 301);
-                          setState(() {
-                            _isShowBottomView = true;
-                          });
-                        }),
-                      ),
-                    ),
+                            padding: const EdgeInsets.all(0.0),
+                            child: Center(
+                              child: MsgInput(
+                                  type == 1 ? userID! : groupID!,
+                                  type,
+                                  recordBackStatus,
+                                  setRecordBackStatus, () {
+                                FocusScope.of(context)
+                                    .requestFocus(FocusNode());
+                                isAutoScroll = true;
+                                _conversationInnerKey.currentState
+                                    ?.scrollToBottom();
+                                bottomView = MoreSendFunction(
+                                  toUser: type == 1 ? userID! : groupID!,
+                                  type: type,
+                                  picker: _picker,
+                                  height: keyboardHeight ?? 301,
+                                );
+                                setState(() {
+                                  _isShowBottomView = true;
+                                });
+                                _timer = Timer(Duration(milliseconds: 400), () {
+                                  isAutoScroll = false;
+                                });
+                              }, () {
+                                FocusScope.of(context)
+                                    .requestFocus(FocusNode());
+                                isAutoScroll = true;
+                                _conversationInnerKey.currentState
+                                    ?.scrollToBottom();
+                                bottomView = FaceMsg(
+                                    type == 1 ? userID! : groupID!,
+                                    type,
+                                    keyboardHeight ?? 301);
+                                setState(() {
+                                  _isShowBottomView = true;
+                                });
+                                _timer = Timer(Duration(milliseconds: 400), () {
+                                  isAutoScroll = false;
+                                });
+                              }),
+                            ),
+                          ),
                     Padding(
                       padding: const EdgeInsets.all(0.0),
                       child: Container(
@@ -212,15 +235,15 @@ class ConversionState extends State<Conversion> {
                 ),
                 _isShowBottomView
                     ? Column(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-
-                    Column(
-                      children: [bottomView ?? SizedBox(),],
-                    )
-
-                  ],
-                )
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Column(
+                            children: [
+                              bottomView ?? SizedBox(),
+                            ],
+                          )
+                        ],
+                      )
                     : SizedBox()
               ],
             )));

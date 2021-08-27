@@ -14,12 +14,12 @@ class VoiceMsg extends StatefulWidget {
 class VoiceMsgState extends State<VoiceMsg> {
   String? toUser;
   int? type;
-  bool keybordshow = true;
+  bool keybordShow = true;
   toggleKeyBord() {
     setState(() {
-      keybordshow = !keybordshow;
+      keybordShow = !keybordShow;
     });
-    Provider.of<KeyBoradModel>(context, listen: false).setStatus(keybordshow);
+    Provider.of<KeyBoradModel>(context, listen: false).setStatus(keybordShow);
   }
 
   void initState() {
