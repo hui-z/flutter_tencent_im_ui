@@ -135,7 +135,8 @@ class ConversionItem extends StatelessWidget {
     Navigator.push(
       context,
       new MaterialPageRoute(
-        builder: (context) => Conversion(conversationID, AppBar(title: Text(name ?? ''))),
+        builder: (context) => Conversion(conversationID,
+            AppBar(title: Text(name ?? '')), (_, message) {}, (_) {}),
       ),
     );
   }

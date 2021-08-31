@@ -33,10 +33,11 @@ dependencies:
 #      url: https://github.com/hui-z/flutter_tencent_im_ui.git
 #      ref: master
 
-  flutter_dynamic_widgets:
-    git:
-      url: https://github.com/hui-z/flutter_dynamic_widgets.git
-      ref: master
+#  flutter_dynamic_widgets:
+#    git:
+#      url: https://github.com/hui-z/flutter_dynamic_widgets.git
+#      ref: master
+  dio: ^4.0.0
 
 dev_dependencies:
   flutter_test:

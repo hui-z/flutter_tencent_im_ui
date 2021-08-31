@@ -22,27 +22,31 @@ class GroupItem extends StatelessWidget {
         Navigator.push(
           context,
           new MaterialPageRoute(
-            builder: (context) => Conversion('group_${groupInfo.groupID}', AppBar(
-              title: Text("${groupInfo.groupID}"),
-              backgroundColor: CommonColors.getThemeColor(),
-              actions: [
-                IconButton(
-                  icon: Icon(
-                    Icons.account_box,
-                    color: CommonColors.getWitheColor(),
-                  ),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      new MaterialPageRoute(
-                        builder: (context) =>
-                        ConversationInfo(groupInfo.groupID, 2),
+            builder: (context) => Conversion(
+                'group_${groupInfo.groupID}',
+                AppBar(
+                  title: Text("${groupInfo.groupID}"),
+                  backgroundColor: CommonColors.getThemeColor(),
+                  actions: [
+                    IconButton(
+                      icon: Icon(
+                        Icons.account_box,
+                        color: CommonColors.getWitheColor(),
                       ),
-                    );
-                  },
-                )
-              ],
-            )),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          new MaterialPageRoute(
+                            builder: (context) =>
+                                ConversationInfo(groupInfo.groupID, 2),
+                          ),
+                        );
+                      },
+                    )
+                  ],
+                ),
+                (_, message) {},
+                (_) {}),
           ),
         );
       },

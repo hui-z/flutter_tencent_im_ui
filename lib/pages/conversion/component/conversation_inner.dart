@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_tencent_im_ui/provider/currentMessageList.dart';
@@ -9,14 +10,23 @@ import 'package:tencent_im_sdk_plugin/tencent_im_sdk_plugin.dart';
 import 'send_msg.dart';
 
 class ConversationInner extends StatefulWidget {
-  ConversationInner(Key key, this.conversationID, this.type, this.userID,
-      this.groupID, this.scrollListener)
+  ConversationInner(
+      Key key,
+      this.conversationID,
+      this.type,
+      this.userID,
+      this.groupID,
+      this.scrollListener,
+      this.onMessageRqSuc,
+      this.onMessageRqFail)
       : super(key: key);
   final String conversationID;
   final int type;
   final String? userID;
   final String? groupID;
   final VoidCallback scrollListener;
+  final Function(Response response, V2TimMessage message)? onMessageRqSuc;
+  final Function(DioError error)? onMessageRqFail;
 
   @override
   State<StatefulWidget> createState() => ConversationInnerState();
@@ -137,7 +147,8 @@ class ConversationInnerState extends State<ConversationInner>
                   ? [Container()]
                   : currentMessageList!.map(
                       (e) {
-                        return SendMsg(e, Key(e.msgID ?? ""));
+                        return SendMsg(e, Key(e.msgID ?? ""),
+                            widget.onMessageRqSuc, widget.onMessageRqFail);
                       },
                     ).toList(),
         ),

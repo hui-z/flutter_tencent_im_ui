@@ -35,27 +35,30 @@ class SendMessage extends StatelessWidget {
                 Navigator.push(
                   context,
                   new MaterialPageRoute(
-                    builder: (context) => Conversion('c2c_$userID', AppBar(
-                      title: Text("会话"),
-                      backgroundColor: CommonColors.getThemeColor(),
-                      actions: [
-                        IconButton(
-                          icon: Icon(
-                            Icons.account_box,
-                            color: CommonColors.getWitheColor(),
-                          ),
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              new MaterialPageRoute(
-                                builder: (context) =>
-                                UserProfile(userID),
+                    builder: (context) => Conversion(
+                        'c2c_$userID',
+                        AppBar(
+                          title: Text("会话"),
+                          backgroundColor: CommonColors.getThemeColor(),
+                          actions: [
+                            IconButton(
+                              icon: Icon(
+                                Icons.account_box,
+                                color: CommonColors.getWitheColor(),
                               ),
-                            );
-                          },
-                        )
-                      ],
-                    )),
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  new MaterialPageRoute(
+                                    builder: (context) => UserProfile(userID),
+                                  ),
+                                );
+                              },
+                            )
+                          ],
+                        ),
+                        (_, message) {},
+                        (_) {}),
                   ),
                 );
               },

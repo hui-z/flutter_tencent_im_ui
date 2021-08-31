@@ -125,30 +125,36 @@ class ChooseContactState extends State<ChooseContact> {
                                     Navigator.pushReplacement(
                                       context,
                                       new MaterialPageRoute(
-                                        builder: (context) => Conversion(
-                                          "c2c_${selectList[0]}", AppBar(
-                                          title: Text(selectList[0]),
-                                          backgroundColor: CommonColors.getThemeColor(),
-                                          actions: [
-                                            IconButton(
-                                              icon: Icon(
-                                                Icons.account_box,
-                                                color: CommonColors.getWitheColor(),
+                                          builder: (context) => Conversion(
+                                              "c2c_${selectList[0]}",
+                                              AppBar(
+                                                title: Text(selectList[0]),
+                                                backgroundColor: CommonColors
+                                                    .getThemeColor(),
+                                                actions: [
+                                                  IconButton(
+                                                    icon: Icon(
+                                                      Icons.account_box,
+                                                      color: CommonColors
+                                                          .getWitheColor(),
+                                                    ),
+                                                    onPressed: () {
+                                                      Navigator.push(
+                                                        context,
+                                                        new MaterialPageRoute(
+                                                          builder: (context) =>
+                                                              UserProfile(
+                                                                  selectList[
+                                                                      0]),
+                                                        ),
+                                                      );
+                                                    },
+                                                  )
+                                                ],
                                               ),
-                                              onPressed: () {
-                                                Navigator.push(
-                                                  context,
-                                                  new MaterialPageRoute(
-                                                    builder: (context) =>
-                                                    UserProfile(selectList[0]),
-                                                  ),
-                                                );
-                                              },
-                                            )
-                                          ],
-                                        ),)
-                                        ),
-                                      );
+                                              (_, message) {},
+                                              (_) {})),
+                                    );
                                   } else {
                                     String groupYype = '';
                                     String name = '';
@@ -193,28 +199,34 @@ class ChooseContactState extends State<ChooseContact> {
                                           context,
                                           new MaterialPageRoute(
                                             builder: (context) => Conversion(
-                                              "group_$groupId", AppBar(
-                                              title: Text("$groupId"),
-                                              backgroundColor: CommonColors.getThemeColor(),
-                                              actions: [
-                                                IconButton(
-                                                  icon: Icon(
-                                                    Icons.account_box,
-                                                    color: CommonColors.getWitheColor(),
-                                                  ),
-                                                  onPressed: () {
-                                                    Navigator.push(
-                                                      context,
-                                                      new MaterialPageRoute(
-                                                        builder: (context) =>
-                                                        ConversationInfo(groupID!, type),
+                                                "group_$groupId",
+                                                AppBar(
+                                                  title: Text("$groupId"),
+                                                  backgroundColor: CommonColors
+                                                      .getThemeColor(),
+                                                  actions: [
+                                                    IconButton(
+                                                      icon: Icon(
+                                                        Icons.account_box,
+                                                        color: CommonColors
+                                                            .getWitheColor(),
                                                       ),
-                                                    );
-                                                  },
-                                                )
-                                              ],
-                                            )
-                                            ),
+                                                      onPressed: () {
+                                                        Navigator.push(
+                                                          context,
+                                                          new MaterialPageRoute(
+                                                            builder: (context) =>
+                                                                ConversationInfo(
+                                                                    groupID!,
+                                                                    type),
+                                                          ),
+                                                        );
+                                                      },
+                                                    )
+                                                  ],
+                                                ),
+                                                (_, message) {},
+                                                (_) {}),
                                           ),
                                         );
                                       } else {

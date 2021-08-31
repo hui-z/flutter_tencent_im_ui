@@ -221,13 +221,18 @@ class MoreSendFunction extends StatelessWidget {
               },
               {
                 'widget': 'RawMaterialButton',
-                'eventName': [
-                  'onTap://update'
+                'events': [
+                  {
+                    'type': 'onTap',
+                    'action': 'request',
+                    'method': 'get',
+                    'url': 'https://www.baidu.com'
+                  }
                 ],
                 'child': {
                   'widget': 'Text',
                   'xVar': {
-                    'data': '确认续约',
+                    'data': '处理请求, 更新卡片',
                     'style': {'color': 'FF2196F3', 'fontSize': 16.0}
                   },
                 }
