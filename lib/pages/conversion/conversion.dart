@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_tencent_im_ui/common/colors.dart';
 import 'package:flutter_tencent_im_ui/provider/currentMessageList.dart';
@@ -16,9 +17,12 @@ import 'component/more_send_function.dart';
 import 'component/msg_input.dart';
 
 class Conversion extends StatefulWidget {
-  Conversion(this.conversationID, this.appBar);
+  Conversion(this.conversationID, this.appBar, this.onMessageRqSuc,
+      this.onMessageRqFail);
   final String conversationID;
   final PreferredSizeWidget? appBar;
+  final Function(Response response, V2TimMessage message)? onMessageRqSuc;
+  final Function(DioError error)? onMessageRqFail;
   @override
   State<StatefulWidget> createState() => ConversionState(conversationID);
 }
@@ -161,7 +165,7 @@ class ConversionState extends State<Conversion> {
                               _isShowBottomView = false;
                             });
                           }
-                        }),
+                        }, widget.onMessageRqSuc, widget.onMessageRqFail),
                         onTap: () {
                           if (MediaQuery.of(context).viewInsets.bottom >= 50) {
                             if (keyboardHeight == null) {

@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_tencent_im_ui/common/event_router.dart';
 import 'package:tencent_im_sdk_plugin/enum/message_elem_type.dart';
 import 'package:tencent_im_sdk_plugin/models/v2_tim_message.dart';
 
@@ -79,7 +80,7 @@ class CurrentMessageListModel with ChangeNotifier, DiagnosticableTreeMixin {
       if (element.elemType == MessageElemType
           .V2TIM_ELEM_TYPE_CUSTOM) {
         Map? data = json.decode(element.customElem?.data ?? '');
-        if (data?['action'] == 'update') {
+        if (data?['messageType'] == MessageType.update) {
           updateMsgList.add(element);
         } else {
           newList.add(element);
@@ -91,12 +92,11 @@ class CurrentMessageListModel with ChangeNotifier, DiagnosticableTreeMixin {
     newList.forEach((element1) {
       if (element1.elemType == MessageElemType
           .V2TIM_ELEM_TYPE_CUSTOM) {
+        Map? data1 = json.decode(element1.customElem?.data ?? '');
         updateMsgList.forEach((element2) {
-          Map? data1 = json.decode(element1.customElem?.data ?? '');
           Map? data2 = json.decode(element2.customElem?.data ?? '');
           if (data2?['id'] == data1?['id']) {
-            data2?['id'] = '';
-            data2?['action'] = '';
+            data2?['messageType'] = '';
             element1.customElem?.data = json.encode(data2);
           }
         });

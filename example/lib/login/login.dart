@@ -39,6 +39,8 @@ import '../home/home.dart';
 var timLogo = AssetImage("images/logo.png");
 
 class LoginPage extends StatefulWidget {
+  static const String routeName = 'login';
+
   @override
   _LoginPageState createState() => _LoginPageState();
 }

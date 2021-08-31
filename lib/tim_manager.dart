@@ -27,8 +27,8 @@ class TIMManager {
    return _instance!;
  }
 
- void initSDK({required sdkAppID, required int loglevel, required V2TimSDKListener listener}) async {
-   await instance.initSDK(sdkAppID: sdkAppID, loglevel: loglevel, listener: listener);
+ void initSDK({required sdkAppID, required int logLevel, required V2TimSDKListener listener}) async {
+   await instance.initSDK(sdkAppID: sdkAppID, loglevel: logLevel, listener: listener);
  }
 
  void logout(BuildContext context, VoidCallback? result) async {

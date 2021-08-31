@@ -28,7 +28,6 @@ dependencies:
   flutter_slidable: ^0.6.0
   crypto: ^3.0.1
   path_provider: ^2.0.1
-  flutter_easyloading: ^3.0.0
   loading_indicator: ^2.0.1
   fluttertoast: ^8.0.6
   webview_flutter: ^2.0.10

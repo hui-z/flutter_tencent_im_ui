@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_tencent_im_ui/common/avatar.dart';
 import 'package:tencent_im_sdk_plugin/models/v2_tim_message.dart';
@@ -6,9 +7,12 @@ import 'fix_position.dart';
 import 'msg_body.dart';
 
 class SendMsg extends StatelessWidget {
-  SendMsg(this.message, this.key);
+  SendMsg(this.message, this.key, this.onMessageRqSuc, this.onMessageRqFail);
   final V2TimMessage message;
   final Key key;
+  final Function(Response response, V2TimMessage message)? onMessageRqSuc;
+  final Function(DioError error)? onMessageRqFail;
+
   getShowMessage() {
     String msg = '';
     switch (message.elemType) {
@@ -83,6 +87,8 @@ class SendMsg extends StatelessWidget {
             name: getShowName(),
             messageText: getShowMessage(),
             message: message,
+            onMessageRqSuc: onMessageRqSuc,
+            onMessageRqFail: onMessageRqFail,
           ),
           FixPosition()
         ],

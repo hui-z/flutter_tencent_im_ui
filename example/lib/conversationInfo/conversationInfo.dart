@@ -19,6 +19,8 @@ import 'package:tencent_im_sdk_plugin/models/v2_tim_value_callback.dart';
 import 'package:tencent_im_sdk_plugin/tencent_im_sdk_plugin.dart';
 
 class ConversationInfo extends StatefulWidget {
+  static const String routeName = 'conversationInfo';
+
   ConversationInfo(this.id, this.type);
   final String id;
   final int type;

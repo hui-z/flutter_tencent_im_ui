@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_tencent_im_ui/common/colors.dart';
@@ -24,12 +25,16 @@ class MsgBody extends StatelessWidget {
   late String name;
   late String message;
   late V2TimMessage msgObj;
+  late Function(Response response, V2TimMessage message)? onMessageRqSuc;
+  late Function(DioError error)? onMessageRqFail;
 
   MsgBody({
     messageText,
     type,
     name,
     message,
+    onMessageRqSuc,
+    onMessageRqFail
   }) {
     if (type != 1) {
       this.textDirection = TextDirection.ltr;
@@ -43,6 +48,8 @@ class MsgBody extends StatelessWidget {
     this.message = messageText;
     this.name = name;
     this.msgObj = message;
+    this.onMessageRqSuc = onMessageRqSuc;
+    this.onMessageRqFail = onMessageRqFail;
   }
 
   String getMessageTime() {
@@ -183,7 +190,7 @@ class MsgBody extends StatelessWidget {
                                   : msgObj.elemType ==
                                           MessageElemType
                                               .V2TIM_ELEM_TYPE_CUSTOM //自定义消息
-                                      ? CustomMessage(msgObj)
+                                      ? CustomMessage(msgObj, onMessageRqSuc, onMessageRqFail)
                                       : msgObj.elemType == 1 //文字
                                           ? Text(
                                               message,
