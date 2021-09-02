@@ -36,8 +36,8 @@ class SendMessage extends StatelessWidget {
                   context,
                   new MaterialPageRoute(
                     builder: (context) => Conversion(
-                        'c2c_$userID',
-                        AppBar(
+                        conversationID: 'c2c_$userID',
+                        appBar: AppBar(
                           title: Text("会话"),
                           backgroundColor: CommonColors.getThemeColor(),
                           actions: [
@@ -56,9 +56,7 @@ class SendMessage extends StatelessWidget {
                               },
                             )
                           ],
-                        ),
-                        (_, message) {},
-                        (_) {}),
+                        )),
                   ),
                 );
               },

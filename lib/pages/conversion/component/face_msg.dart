@@ -5,7 +5,12 @@ import 'package:flutter_tencent_im_ui/models/emoji/emoji.dart';
 import 'package:flutter_tencent_im_ui/utils/emojiData.dart';
 
 class FaceMsg extends StatelessWidget {
-  FaceMsg(this.toUser, this.type, this.height);
+  FaceMsg(
+      {Key? key,
+      required this.toUser,
+      required this.type,
+      required this.height})
+      : super(key: key);
   final String toUser;
   final int type;
   final double height;

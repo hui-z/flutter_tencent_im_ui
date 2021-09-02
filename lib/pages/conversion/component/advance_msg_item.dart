@@ -1,14 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_tencent_im_ui/common/colors.dart';
-import 'package:flutter_tencent_im_ui/pages/conversion/dataInterface/advanceMsgList.dart';
+import 'package:flutter_tencent_im_ui/common/advance_msg_list.dart';
 
 class AdvanceMsgItem extends StatelessWidget {
-  onPressed() {
-    list.onPressed();
-  }
-
+  AdvanceMsgItem(this.list, {Key? key}) : super(key: key);
   final AdvanceMsgList list;
-  AdvanceMsgItem(this.list);
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +23,7 @@ class AdvanceMsgItem extends StatelessWidget {
               ),
               child: IconButton(
                 icon: list.icon,
-                onPressed: onPressed,
+                onPressed: _onPressed,
               ),
             ),
             Container(
@@ -42,5 +38,9 @@ class AdvanceMsgItem extends StatelessWidget {
             )
           ],
         ));
+  }
+
+  _onPressed() {
+    list.onPressed();
   }
 }

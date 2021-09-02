@@ -9,6 +9,7 @@ import 'package:tencent_im_sdk_plugin/models/v2_tim_message.dart';
 class CurrentMessageListModel with ChangeNotifier, DiagnosticableTreeMixin {
   Map<String, List<V2TimMessage>> _messageMap = new Map();
 
+
   get messageMap => _messageMap;
 
   clear() {
@@ -16,8 +17,8 @@ class CurrentMessageListModel with ChangeNotifier, DiagnosticableTreeMixin {
     notifyListeners();
   }
 
-  updateC2CMessageByUserId(String userid) {
-    String key = "c2c_$userid";
+  updateC2CMessageByUserId(String userID) {
+    String key = "c2c_$userID";
     if (_messageMap.containsKey(key)) {
       List<V2TimMessage>? msgList = _messageMap[key];
       msgList!.forEach((element) {
@@ -30,6 +31,9 @@ class CurrentMessageListModel with ChangeNotifier, DiagnosticableTreeMixin {
   }
 
   addMessage(String key, List<V2TimMessage> value) {
+    if (value.isEmpty) {
+      return;
+    }
     if (_messageMap.containsKey(key)) {
       _messageMap[key]!.addAll(value);
     } else {
@@ -46,7 +50,7 @@ class CurrentMessageListModel with ChangeNotifier, DiagnosticableTreeMixin {
     rebuildMap.clear();
     _messageMap[key] = updateCustomMsg(_messageMap[key]!);
     _messageMap[key]!
-        .sort((left, right) => left.timestamp!.compareTo(right.timestamp!));
+        .sort((left, right) => right.timestamp!.compareTo(left.timestamp!));
     notifyListeners();
   }
 

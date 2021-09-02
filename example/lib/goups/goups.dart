@@ -23,8 +23,8 @@ class GroupItem extends StatelessWidget {
           context,
           new MaterialPageRoute(
             builder: (context) => Conversion(
-                'group_${groupInfo.groupID}',
-                AppBar(
+                conversationID: 'group_${groupInfo.groupID}',
+                appBar: AppBar(
                   title: Text("${groupInfo.groupID}"),
                   backgroundColor: CommonColors.getThemeColor(),
                   actions: [
@@ -44,9 +44,7 @@ class GroupItem extends StatelessWidget {
                       },
                     )
                   ],
-                ),
-                (_, message) {},
-                (_) {}),
+                )),
           ),
         );
       },

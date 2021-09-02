@@ -13,8 +13,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 class FileMessage extends StatelessWidget {
   final V2TimMessage message;
-
-  FileMessage(this.message);
+  FileMessage({Key? key, required this.message}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

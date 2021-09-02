@@ -1,19 +1,23 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_tencent_im_ui/common/avatar.dart';
+import 'package:flutter_tencent_im_ui/common/constants.dart';
 import 'package:tencent_im_sdk_plugin/models/v2_tim_message.dart';
 
-import 'fix_position.dart';
 import 'msg_body.dart';
 
 class SendMsg extends StatelessWidget {
-  SendMsg(this.message, this.key, this.onMessageRqSuc, this.onMessageRqFail);
+  SendMsg(
+      {Key? key,
+      required this.message,
+      this.onMessageRqSuc,
+      this.onMessageRqFail})
+      : super(key: key);
   final V2TimMessage message;
-  final Key key;
   final Function(Response response, V2TimMessage message)? onMessageRqSuc;
   final Function(DioError error)? onMessageRqFail;
 
-  getShowMessage() {
+  _getShowMessage() {
     String msg = '';
     switch (message.elemType) {
       case 1:
@@ -48,7 +52,7 @@ class SendMsg extends StatelessWidget {
     return msg;
   }
 
-  getShowName() {
+  _getShowName() {
     return message.friendRemark == null || message.friendRemark == ''
         ? message.nickName == null || message.nickName == ''
             ? message.sender
@@ -83,14 +87,18 @@ class SendMsg extends StatelessWidget {
             ),
           ),
           MsgBody(
-            type: message.isSelf! ? 1 : 2,
-            name: getShowName(),
-            messageText: getShowMessage(),
-            message: message,
+            type:
+                message.isSelf! ? ConversationType.c2c : ConversationType.group,
+            name: _getShowName(),
+            message: _getShowMessage(),
+            msgObj: message,
             onMessageRqSuc: onMessageRqSuc,
             onMessageRqFail: onMessageRqFail,
           ),
-          FixPosition()
+          Container(
+            width: 52,
+            height: 40,
+          )
         ],
       ),
     );

@@ -6,8 +6,9 @@ import 'package:loading_indicator/loading_indicator.dart';
 import 'package:tencent_im_sdk_plugin/models/v2_tim_message.dart';
 
 class ImageMessage extends StatelessWidget {
+  ImageMessage({Key? key, required this.message}) : super(key: key);
   final V2TimMessage message;
-  ImageMessage(this.message);
+
   @override
   Widget build(BuildContext context) {
     return Column(

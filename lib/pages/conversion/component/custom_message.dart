@@ -8,7 +8,12 @@ import 'package:flutter_tencent_im_ui/common/event_router.dart';
 import 'package:tencent_im_sdk_plugin/models/v2_tim_message.dart';
 
 class CustomMessage extends StatefulWidget {
-  CustomMessage(this.message, this.onMessageRqSuc, this.onMessageRqFail);
+  CustomMessage(
+      {Key? key,
+      required this.message,
+      this.onMessageRqSuc,
+      this.onMessageRqFail})
+      : super(key: key);
   final V2TimMessage message;
   final Function(Response response, V2TimMessage message)? onMessageRqSuc;
   final Function(DioError error)? onMessageRqFail;
@@ -45,9 +50,7 @@ class CustomMessageState extends State<CustomMessage> {
   @override
   Widget build(BuildContext context) {
     if (message == null) {
-      return Container(
-        child: Text('null'),
-      );
+      return Container();
     }
     return showMessage();
   }

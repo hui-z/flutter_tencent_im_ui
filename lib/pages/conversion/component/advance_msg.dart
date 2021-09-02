@@ -2,7 +2,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_tencent_im_ui/common/colors.dart';
+import 'package:flutter_tencent_im_ui/common/constants.dart';
 import 'package:flutter_tencent_im_ui/provider/currentMessageList.dart';
+import 'package:flutter_tencent_im_ui/utils/string_util.dart';
 import 'package:flutter_tencent_im_ui/utils/toast.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
@@ -11,8 +13,13 @@ import 'package:tencent_im_sdk_plugin/models/v2_tim_value_callback.dart';
 import 'package:tencent_im_sdk_plugin/tencent_im_sdk_plugin.dart';
 
 class AdvanceMsg extends StatefulWidget {
-  AdvanceMsg(Key key, this.toUser, this.type, this.sendText,
-      this.sendTextMsgSuc, this.moreBtnClick)
+  AdvanceMsg(
+      {Key? key,
+      required this.toUser,
+      required this.type,
+      this.sendText,
+      required this.sendTextMsgSuc,
+      required this.moreBtnClick})
       : super(key: key);
   final String? sendText;
   final String toUser;
@@ -44,7 +51,7 @@ class AdvanceMsgState extends State<AdvanceMsg> {
       return;
     }
     V2TimValueCallback<V2TimMessage> sendRes;
-    if (widget.type == 1) {
+    if (widget.type == ConversationType.c2c) {
       sendRes = await TencentImSDKPlugin.v2TIMManager
           .sendC2CTextMessage(text: sendText!, userID: widget.toUser);
     } else {
@@ -53,9 +60,7 @@ class AdvanceMsgState extends State<AdvanceMsg> {
     }
 
     if (sendRes.code == 0) {
-      String key = (widget.type == 1
-          ? "c2c_${widget.toUser}"
-          : "group_${widget.toUser}");
+      String key = StringUtil.appendConversionType(widget.toUser, widget.type);
       List<V2TimMessage> list = List.empty(growable: true);
       list.add(sendRes.data!);
       Provider.of<CurrentMessageListModel>(context, listen: false)

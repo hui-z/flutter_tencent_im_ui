@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_tencent_im_ui/common/colors.dart';
+import 'package:flutter_tencent_im_ui/common/constants.dart';
 import 'package:tencent_im_sdk_plugin/enum/message_elem_type.dart';
 import 'package:tencent_im_sdk_plugin/enum/message_status.dart';
 import 'package:tencent_im_sdk_plugin/models/v2_tim_message.dart';
@@ -13,44 +14,41 @@ import 'image_message.dart';
 import 'sound_message.dart';
 import 'video_message.dart';
 
-// ignore: must_be_immutable
 class MsgBody extends StatelessWidget {
-  TextDirection textDirection = TextDirection.rtl;
-  CrossAxisAlignment crossAxisAlignment = CrossAxisAlignment.end;
-  TextAlign textAlign = TextAlign.left;
-  EdgeInsetsGeometry padding = EdgeInsets.only(
-    right: 12,
-  );
-  int type = 1;
-  late String name;
-  late String message;
-  late V2TimMessage msgObj;
-  late Function(Response response, V2TimMessage message)? onMessageRqSuc;
-  late Function(DioError error)? onMessageRqFail;
+  final TextDirection textDirection;
+  final CrossAxisAlignment crossAxisAlignment;
+  final TextAlign textAlign;
+  final EdgeInsetsGeometry padding;
+  final int type;
+  final String name;
+  final String message;
+  final V2TimMessage msgObj;
+  final Function(Response response, V2TimMessage message)? onMessageRqSuc;
+  final Function(DioError error)? onMessageRqFail;
 
-  MsgBody({
-    messageText,
-    type,
-    name,
-    message,
-    onMessageRqSuc,
-    onMessageRqFail
-  }) {
-    if (type != 1) {
-      this.textDirection = TextDirection.ltr;
-      this.crossAxisAlignment = CrossAxisAlignment.start;
-      this.padding = EdgeInsets.only(
-        left: 12,
-      );
-    }
-
-    this.type = type;
-    this.message = messageText;
-    this.name = name;
-    this.msgObj = message;
-    this.onMessageRqSuc = onMessageRqSuc;
-    this.onMessageRqFail = onMessageRqFail;
-  }
+  MsgBody(
+      {Key? key,
+      required this.message,
+      required this.type,
+      required this.name,
+      required this.msgObj,
+      this.textAlign = TextAlign.left,
+      this.onMessageRqSuc,
+      this.onMessageRqFail})
+      : textDirection = type == ConversationType.c2c
+            ? TextDirection.rtl
+            : TextDirection.ltr,
+        crossAxisAlignment = type == ConversationType.c2c
+            ? CrossAxisAlignment.end
+            : CrossAxisAlignment.start,
+        padding = type == ConversationType.c2c
+            ? EdgeInsets.only(
+                right: 12,
+              )
+            : EdgeInsets.only(
+                left: 12,
+              ),
+        super(key: key);
 
   String getMessageTime() {
     String time = '';
@@ -132,7 +130,6 @@ class MsgBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     return Expanded(
       child: Container(
         padding: padding,
@@ -161,13 +158,13 @@ class MsgBody extends StatelessWidget {
                 child: Container(
                   padding: EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: type == 1
+                    color: type == ConversationType.c2c
                         ? hexToColor('006eff').withOpacity(0.1)
                         : hexToColor('f8f8f8').withOpacity(1),
                     border: Border.all(
                       width: 0.5,
                       style: BorderStyle.solid,
-                      color: type == 1
+                      color: type == ConversationType.c2c
                           ? hexToColor('006eff').withOpacity(0.3)
                           : hexToColor('e8e8e8').withOpacity(1),
                     ),
@@ -175,7 +172,7 @@ class MsgBody extends StatelessWidget {
                   ),
                   child: msgObj.elemType ==
                           MessageElemType.V2TIM_ELEM_TYPE_IMAGE //图片
-                      ? ImageMessage(msgObj)
+                      ? ImageMessage(message: msgObj)
                       : msgObj.elemType ==
                               MessageElemType.V2TIM_ELEM_TYPE_FACE //表情
                           ? Container(
@@ -190,16 +187,20 @@ class MsgBody extends StatelessWidget {
                                   : msgObj.elemType ==
                                           MessageElemType
                                               .V2TIM_ELEM_TYPE_CUSTOM //自定义消息
-                                      ? CustomMessage(msgObj, onMessageRqSuc, onMessageRqFail)
+                                      ? CustomMessage(
+                                          message: msgObj,
+                                          onMessageRqSuc: onMessageRqSuc,
+                                          onMessageRqFail: onMessageRqFail)
                                       : msgObj.elemType == 1 //文字
                                           ? Text(
                                               message,
                                               textAlign: textAlign,
                                               style: TextStyle(
                                                 fontSize: 16,
-                                                color: type == 1
-                                                    ? hexToColor('171538')
-                                                    : hexToColor('000000'),
+                                                color:
+                                                    type == ConversationType.c2c
+                                                        ? hexToColor('171538')
+                                                        : hexToColor('000000'),
                                               ),
                                             )
                                           : msgObj.elemType ==
@@ -209,13 +210,15 @@ class MsgBody extends StatelessWidget {
                                               : msgObj.elemType ==
                                                       MessageElemType
                                                           .V2TIM_ELEM_TYPE_FILE //文件消息
-                                                  ? FileMessage(msgObj)
+                                                  ? FileMessage(message: msgObj)
                                                   : Text(
                                                       "未解析消息${msgObj.elemType}",
                                                       textAlign: textAlign,
                                                       style: TextStyle(
                                                         fontSize: 16,
-                                                        color: type == 1
+                                                        color: type ==
+                                                                ConversationType
+                                                                    .c2c
                                                             ? hexToColor(
                                                                 '171538')
                                                             : hexToColor(

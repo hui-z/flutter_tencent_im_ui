@@ -5,8 +5,10 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_tencent_im_ui/common/colors.dart';
-import 'package:flutter_tencent_im_ui/pages/conversion/dataInterface/advanceMsgList.dart';
+import 'package:flutter_tencent_im_ui/common/advance_msg_list.dart';
+import 'package:flutter_tencent_im_ui/common/constants.dart';
 import 'package:flutter_tencent_im_ui/provider/currentMessageList.dart';
+import 'package:flutter_tencent_im_ui/utils/string_util.dart';
 import 'package:flutter_tencent_im_ui/utils/toast.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
@@ -128,8 +130,8 @@ class MoreSendFunction extends StatelessWidget {
         .getMessageManager()
         .sendVideoMessage(
           videoFilePath: video.path,
-          receiver: type == 1 ? toUser : "",
-          groupID: type == 2 ? toUser : "",
+          receiver: type == ConversationType.c2c ? toUser : "",
+          groupID: type == ConversationType.group ? toUser : "",
           type: 'mp4',
           snapshotPath: thumbnail == null ? "" : thumbnail,
           onlineUserOnly: false,
@@ -137,15 +139,14 @@ class MoreSendFunction extends StatelessWidget {
         );
 
     if (res.code == 0) {
-      String key = (type == 1 ? "c2c_$toUser" : "group_$toUser");
+      String key = StringUtil.appendConversionType(toUser, type);
       V2TimMessage? msg = res.data;
       // 添加新消息
 
       try {
         Provider.of<CurrentMessageListModel>(context, listen: false)
             .addOneMessageIfNotExits(key, msg!);
-      } catch (err) {
-      }
+      } catch (err) {}
     } else {
       Utils.toast("发送失败 ${res.code} ${res.desc}");
     }
@@ -162,20 +163,19 @@ class MoreSendFunction extends StatelessWidget {
         .getMessageManager()
         .sendImageMessage(
           imagePath: path,
-          receiver: type == 1 ? toUser : "",
-          groupID: type == 2 ? toUser : "",
+          receiver: type == ConversationType.c2c ? toUser : "",
+          groupID: type == ConversationType.group ? toUser : "",
           onlineUserOnly: false,
         );
 
     if (res.code == 0) {
-      String key = (type == 1 ? "c2c_$toUser" : "group_$toUser");
+      String key = StringUtil.appendConversionType(toUser, type);
       V2TimMessage? msg = res.data;
       // 添加新消息
       try {
         Provider.of<CurrentMessageListModel>(context, listen: false)
             .addOneMessageIfNotExits(key, msg!);
-      } catch (err) {
-      }
+      } catch (err) {}
     } else {
       Utils.toast("发送失败 ${res.code} ${res.desc}");
     }
@@ -239,11 +239,11 @@ class MoreSendFunction extends StatelessWidget {
               },
             ]
           }),
-          receiver: type == 1 ? toUser : "",
-          groupID: type == 2 ? toUser : "",
+          receiver: type == ConversationType.c2c ? toUser : "",
+          groupID: type == ConversationType.group ? toUser : "",
         );
     if (res.code == 0) {
-      String key = (type == 1 ? "c2c_$toUser" : "group_$toUser");
+      String key = StringUtil.appendConversionType(toUser, type);
       List<V2TimMessage> list = new List.empty(growable: true);
       V2TimMessage? msg = res.data;
       // 添加新消息
@@ -253,8 +253,7 @@ class MoreSendFunction extends StatelessWidget {
       try {
         Provider.of<CurrentMessageListModel>(context, listen: false)
             .addMessage(key, list);
-      } catch (err) {
-      }
+      } catch (err) {}
     } else {
       Utils.toast("发送失败 ${res.code} ${res.desc}");
     }
@@ -271,12 +270,12 @@ class MoreSendFunction extends StatelessWidget {
           .sendFileMessage(
             fileName: path!.split('/').last,
             filePath: path,
-            receiver: type == 1 ? toUser : "",
-            groupID: type == 2 ? toUser : "",
+            receiver: type == ConversationType.c2c ? toUser : "",
+            groupID: type == ConversationType.group ? toUser : "",
             onlineUserOnly: false,
           );
       if (res.code == 0) {
-        String key = (type == 1 ? "c2c_$toUser" : "group_$toUser");
+        String key = StringUtil.appendConversionType(toUser, type);
         List<V2TimMessage> list = new List.empty(growable: true);
         V2TimMessage? msg = res.data;
         // 添加新消息
@@ -285,8 +284,7 @@ class MoreSendFunction extends StatelessWidget {
         try {
           Provider.of<CurrentMessageListModel>(context, listen: false)
               .addMessage(key, list);
-        } catch (err) {
-        }
+        } catch (err) {}
       } else {
         Utils.toast("发送失败 ${res.code} ${res.desc}");
       }

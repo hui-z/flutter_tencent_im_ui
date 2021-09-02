@@ -18,7 +18,7 @@ class GroupApplicationModel with ChangeNotifier, DiagnosticableTreeMixin {
     return _groupApplicationList;
   }
 
-  removeApplicationByuserId(String groupID) {
+  removeApplicationByUserId(String groupID) {
     int? index;
     for (int i = 0; i < _groupApplicationList.length; i++) {
       if (_groupApplicationList[i].groupID == groupID) {

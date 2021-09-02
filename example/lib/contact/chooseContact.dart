@@ -126,8 +126,8 @@ class ChooseContactState extends State<ChooseContact> {
                                       context,
                                       new MaterialPageRoute(
                                           builder: (context) => Conversion(
-                                              "c2c_${selectList[0]}",
-                                              AppBar(
+                                              conversationID: "c2c_${selectList[0]}",
+                                              appBar: AppBar(
                                                 title: Text(selectList[0]),
                                                 backgroundColor: CommonColors
                                                     .getThemeColor(),
@@ -151,9 +151,7 @@ class ChooseContactState extends State<ChooseContact> {
                                                     },
                                                   )
                                                 ],
-                                              ),
-                                              (_, message) {},
-                                              (_) {})),
+                                              ))),
                                     );
                                   } else {
                                     String groupYype = '';
@@ -199,8 +197,8 @@ class ChooseContactState extends State<ChooseContact> {
                                           context,
                                           new MaterialPageRoute(
                                             builder: (context) => Conversion(
-                                                "group_$groupId",
-                                                AppBar(
+                                                conversationID: "group_$groupId",
+                                                appBar: AppBar(
                                                   title: Text("$groupId"),
                                                   backgroundColor: CommonColors
                                                       .getThemeColor(),
@@ -224,9 +222,7 @@ class ChooseContactState extends State<ChooseContact> {
                                                       },
                                                     )
                                                   ],
-                                                ),
-                                                (_, message) {},
-                                                (_) {}),
+                                                )),
                                           ),
                                         );
                                       } else {

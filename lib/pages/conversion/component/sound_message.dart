@@ -4,7 +4,7 @@ import 'package:tencent_im_sdk_plugin/models/v2_tim_message.dart';
 import 'package:audioplayers/audioplayers.dart';
 
 class SoundMessage extends StatefulWidget {
-  SoundMessage(this.message);
+  SoundMessage(this.message, {Key? key}) : super(key: key);
 
   final V2TimMessage message;
 
@@ -28,7 +28,6 @@ class SoundMessageState extends State<SoundMessage> {
         isPlay = false;
       });
     });
-    // recordPlugin.init();
   }
 
   @override

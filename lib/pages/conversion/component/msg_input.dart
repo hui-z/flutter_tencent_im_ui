@@ -1,19 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
-import 'add_advance_msg.dart';
-import 'add_text_msg.dart';
-import 'add_voice_msg.dart';
+import 'advance_msg.dart';
+import 'text_msg.dart';
+import 'voice_msg.dart';
 
 class MsgInput extends StatefulWidget {
-  MsgInput(this.toUser, this.type, this.recordBackStatus,
-      this.setRecordBackStatus, this.moreBtnClick, this.faceBtnClick);
+  MsgInput(
+      {Key? key,
+      required this.toUser,
+      required this.type,
+      required this.recordBackStatus,
+      this.setRecordBackStatus,
+      required this.moreBtnClick,
+      required this.faceBtnClick,
+      required this.sendTextMsgSuc})
+      : super(key: key);
   final String toUser;
   final int type;
   final bool recordBackStatus;
   final setRecordBackStatus;
   final VoidCallback moreBtnClick;
   final VoidCallback faceBtnClick;
+  final VoidCallback sendTextMsgSuc;
 
   @override
   _MsgInputState createState() => _MsgInputState();
@@ -34,8 +43,8 @@ class _MsgInputState extends State<MsgInput> {
               VoiceMsg(widget.toUser, widget.type),
               TextMsg(_textMsgKey, widget.toUser, widget.type,
                   widget.recordBackStatus, widget.setRecordBackStatus, (text) {
-                    _advanceMsgKey.currentState?.updateSendButtonStatus(text);
-                  }),
+                _advanceMsgKey.currentState?.updateSendButtonStatus(text);
+              }),
               Container(
                 width: 44,
                 height: 44,
@@ -47,11 +56,16 @@ class _MsgInputState extends State<MsgInput> {
                     ),
                     onPressed: widget.faceBtnClick),
               ),
-              AdvanceMsg(_advanceMsgKey, widget.toUser, widget.type, sendText,
-                      () {
+              AdvanceMsg(
+                  key: _advanceMsgKey,
+                  toUser: widget.toUser,
+                  type: widget.type,
+                  sendText: sendText,
+                  sendTextMsgSuc: () {
                     sendText = null;
                     _textMsgKey.currentState?.clearInput();
-                  }, widget.moreBtnClick),
+                  },
+                  moreBtnClick: widget.moreBtnClick),
             ],
           )
         ],
