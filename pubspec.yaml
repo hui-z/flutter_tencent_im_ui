@@ -34,6 +34,8 @@ dependencies:
   flutter_sound: ^8.2.5
   record: ^3.0.0
   audioplayers: ^0.19.1
+  open_file: ^3.2.1
+  flutter_filereader: 3.0.0
   flutter_dynamic_widgets:
     git:
       url: https://github.com/hui-z/flutter_dynamic_widgets.git
