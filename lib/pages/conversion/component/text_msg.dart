@@ -1,8 +1,11 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_tencent_im_ui/common/colors.dart';
+import 'package:flutter_tencent_im_ui/models/AtMessageModel.dart';
+import 'package:flutter_tencent_im_ui/pages/conversion/component/select_members.dart';
 import 'package:flutter_tencent_im_ui/provider/currentMessageList.dart';
 import 'package:flutter_tencent_im_ui/provider/keybooad_show.dart';
 import 'package:provider/provider.dart';
@@ -21,8 +24,13 @@ class TextMsg extends StatefulWidget {
   final setRecordBackStatus;
   final ValueChanged<String> onChanged;
 
-  TextMsg(Key key, this.toUser, this.type, this.recordBackStatus,
-      this.setRecordBackStatus, this.onChanged)
+  TextMsg(
+      {Key? key,
+      required this.toUser,
+      required this.type,
+      required this.recordBackStatus,
+      this.setRecordBackStatus,
+      required this.onChanged})
       : super(key: key);
 
   @override
@@ -30,20 +38,17 @@ class TextMsg extends StatefulWidget {
 }
 
 class TextMsgState extends State<TextMsg> {
-  bool isRecording = false;
-  bool isSend = true;
-  bool isShowSendBtn = false;
+  bool _isRecording = false;
+  bool _isSend = true;
   int _count = 0;
-  TextEditingController inputController = new TextEditingController();
+  TextEditingController _inputController = new TextEditingController();
   final _audioRecorder = Record();
-  String soundPath = '';
+  String _soundPath = '';
   late Timer? _timer;
-  OverlayEntry? overlayEntry;
-  String voiceIco = "images/voice_volume_1.png";
-
-  late DateTime startTime;
-  late DateTime endTime;
-
+  OverlayEntry? _overlayEntry;
+  String _voiceIco = "images/voice_volume_1.png";
+  String _oldText = '';
+  List<AtMessageModel> _atMsgList = [];
   FocusNode _node = FocusNode();
 
   @override
@@ -56,8 +61,7 @@ class TextMsgState extends State<TextMsg> {
   @override
   void initState() {
     super.initState();
-    _audioRecorder.hasPermission().then((value) {
-    });
+    _audioRecorder.hasPermission().then((value) {});
   }
 
 // 动画循环（Demo使用的api因为兼容性问题无法监听音量因此直接使用循环动画）
@@ -76,11 +80,11 @@ class TextMsgState extends State<TextMsg> {
       if (_count > 6) _count = 0;
 
       setState(() {
-        voiceIco = list[_count];
+        _voiceIco = list[_count];
       });
       _count++;
-      if (overlayEntry != null) {
-        overlayEntry!.markNeedsBuild();
+      if (_overlayEntry != null) {
+        _overlayEntry!.markNeedsBuild();
       }
     });
   }
@@ -93,8 +97,8 @@ class TextMsgState extends State<TextMsg> {
   }
 
   buildOverLayView(BuildContext context) {
-    if (overlayEntry == null) {
-      overlayEntry = new OverlayEntry(builder: (content) {
+    if (_overlayEntry == null) {
+      _overlayEntry = new OverlayEntry(builder: (content) {
         return Positioned(
           top: MediaQuery.of(context).size.height * 0.5 - 80,
           left: MediaQuery.of(context).size.width * 0.5 - 80,
@@ -115,7 +119,7 @@ class TextMsgState extends State<TextMsg> {
                       Container(
                         margin: EdgeInsets.only(top: 10),
                         child: new Image.asset(
-                          voiceIco,
+                          _voiceIco,
                           width: 100,
                           height: 100,
                           package: 'flutter_plugin_record',
@@ -139,24 +143,83 @@ class TextMsgState extends State<TextMsg> {
           ),
         );
       });
-      Overlay.of(context)!.insert(overlayEntry!);
+      Overlay.of(context)!.insert(_overlayEntry!);
     }
   }
 
+  addAtText() {
+    final oldOffset = _inputController.selection.extentOffset;
+    _inputController.text = _inputController.text + '@';
+    if (!_node.hasFocus) {
+      _node.requestFocus();
+    } else {
+      _inputController.selection =
+          TextSelection.fromPosition(TextPosition(offset: oldOffset + 1));
+    }
+    widget.onChanged(_appendSendAtMagInfo(_inputController.text));
+    _checkoutAtMsg(_inputController.text);
+  }
+
   clearInput() {
-    inputController.clear();
+    _inputController.clear();
+    _atMsgList = [];
+  }
+
+  String _appendSendAtMagInfo(String text) {
+    return text +
+        (_atMsgList.isEmpty
+            ? ''
+            : '_atMsgListJson: ${json.encode(_atMsgList.map((e) => e.toJson()).toList())}');
+  }
+
+  _checkoutAtMsg(String text) {
+    if (text.length > 0) {
+      var lastStr = text.substring(text.length - 1);
+      if (lastStr == '@') {
+        showModalBottomSheet(
+                context: context,
+                builder: (context) => SelectMembers(
+                      type: widget.type,
+                      groupId: widget.toUser,
+                      toUser: widget.toUser,
+                    ),
+                isScrollControlled: true)
+            .then((value) {
+          if (value == null) {
+            return;
+          }
+          var result = value as List<AtMessageModel>?;
+          int index = 0;
+          result?.forEach((element) {
+            var disPlayName = element.toShowString();
+            if (index == 0) {
+              text += '$disPlayName ';
+            } else {
+              text += '@$disPlayName ';
+            }
+            index++;
+          });
+          if (result?.isNotEmpty == true) {
+            _atMsgList.addAll(result!);
+            _inputController.text = text;
+            _oldText = text;
+            widget.onChanged(_appendSendAtMagInfo(text));
+          }
+        });
+      }
+    }
   }
 
   // 1 可以跳转， 0 禁止
-  setGoBackForbid(status) {
+  _setGoBackForbid(status) {
     widget.setRecordBackStatus(status);
   }
 
   // 发送音频
-  sendRecord(recordPath) async {
+  _sendRecord(recordPath) async {
     var d = await flutterSoundHelper.duration(recordPath);
     double _duration = d != null ? d.inMilliseconds / 1000.0 : 0.00;
-    if (isSend) {
+    if (_isSend) {
       TencentImSDKPlugin.v2TIMManager
           .getMessageManager()
           .sendSoundMessage(
@@ -181,35 +244,32 @@ class TextMsgState extends State<TextMsg> {
   }
 
   // 开始录音
-  start() async {
+  _start() async {
     String tempPath = (await getTemporaryDirectory()).path;
     int random = new Random().nextInt(1000);
     String path = "$tempPath/sendSoundMessage_$random.aac";
     File soundFile = new File(path);
     soundFile.createSync();
-    setGoBackForbid(false);
+    _setGoBackForbid(false);
     try {
       await _audioRecorder.start(path: path);
-    } catch (err) {
-    }
+    } catch (err) {}
     setState(() {
-      isRecording = true;
-      soundPath = path;
-      startTime = DateTime.now();
+      _isRecording = true;
+      _soundPath = path;
     });
   }
 
   // 结束录音
-  stop() async {
+  _stop() async {
     final lastPath = await _audioRecorder.stop();
 
     setState(() {
-      isRecording = false;
-      endTime = DateTime.now();
+      _isRecording = false;
     });
     cancelLoopAnimationTimer();
-    setGoBackForbid(true);
-    return soundPath;
+    _setGoBackForbid(true);
+    return _soundPath;
   }
 
   @override
@@ -228,9 +288,32 @@ class TextMsgState extends State<TextMsg> {
                   color: Colors.white,
                 ),
                 child: TextField(
-                  controller: inputController,
+                  controller: _inputController,
                   onChanged: (text) {
-                    widget.onChanged(text);
+                    if (text.length < _oldText.length) {
+                      var focusIndex = _inputController.selection.extentOffset;
+                      var atIndex = text.substring(0, focusIndex).lastIndexOf('@');
+                      var spaceIndex = _oldText.substring(0, focusIndex).lastIndexOf(' ');
+                      if (atIndex > spaceIndex && atIndex < text.length - 1 && _atMsgList.length > 0) {
+                        _inputController.text = text.substring(0, atIndex) + text.substring(focusIndex, text.length);
+                        _inputController.selection = TextSelection.fromPosition(
+                            TextPosition(offset: atIndex));
+                        text = _inputController.text;
+                        int removeIndex = 0;
+                        while(atIndex > 0) {
+                          atIndex = text.substring(0, atIndex).lastIndexOf('@');
+                          var spaceIndex = text.substring(0, atIndex).lastIndexOf(' ');
+                          if (atIndex > spaceIndex && atIndex > -1) {
+                            removeIndex++;
+                          }
+                        }
+                        _atMsgList.removeAt(removeIndex);
+                      }
+                    } else {
+                      _checkoutAtMsg(text);
+                    }
+                    _oldText = text;
+                    widget.onChanged(_appendSendAtMagInfo(text));
                   },
                   focusNode: _node,
                   autocorrect: false,
@@ -257,12 +340,12 @@ class TextMsgState extends State<TextMsg> {
           : GestureDetector(
               onLongPressStart: (e) async {
                 setState(() {
-                  isRecording = true;
-                  isSend = true;
+                  _isRecording = true;
+                  _isSend = true;
                 });
                 buildOverLayView(context); //显示图标
                 loopAnimationTimer();
-                await start();
+                await _start();
               },
               onLongPressEnd: (e) async {
                 bool isSendLocal = true;
@@ -273,21 +356,21 @@ class TextMsgState extends State<TextMsg> {
                   isSendLocal = false;
                 }
                 try {
-                  if (overlayEntry != null) {
-                    overlayEntry!.remove();
-                    overlayEntry = null;
+                  if (_overlayEntry != null) {
+                    _overlayEntry!.remove();
+                    _overlayEntry = null;
                   }
                 } catch (err) {}
                 setState(() {
-                  isRecording = false;
-                  isSend = isSendLocal;
+                  _isRecording = false;
+                  _isSend = isSendLocal;
                 });
-                await stop();
-                sendRecord(soundPath);
+                await _stop();
+                _sendRecord(_soundPath);
               },
               child: Container(
                 height: 34,
-                color: isRecording
+                color: _isRecording
                     ? CommonColors.getGapColor()
                     : CommonColors.getWitheColor(),
                 child: Row(

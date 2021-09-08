@@ -192,17 +192,7 @@ class MsgBody extends StatelessWidget {
                                           onMessageRqSuc: onMessageRqSuc,
                                           onMessageRqFail: onMessageRqFail)
                                       : msgObj.elemType == 1 //文字
-                                          ? Text(
-                                              message,
-                                              textAlign: textAlign,
-                                              style: TextStyle(
-                                                fontSize: 16,
-                                                color:
-                                                    type == ConversationType.c2c
-                                                        ? hexToColor('171538')
-                                                        : hexToColor('000000'),
-                                              ),
-                                            )
+                                          ? _textMessage()
                                           : msgObj.elemType ==
                                                   MessageElemType
                                                       .V2TIM_ELEM_TYPE_GROUP_TIPS //系统消息
@@ -247,5 +237,80 @@ class MsgBody extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Widget _textMessage() {
+    if (message.contains('_atMsgListJson: ')) {
+      var showMessage = message.split('_atMsgListJson: ').first;
+      List<String> spiltList = [];
+      var temp = '';
+      for (var i = 0; i < showMessage.length; i++) {
+        if (temp.startsWith('@')) {
+          if (showMessage[i] == ' ') {
+            spiltList.add(temp + ' ');
+            temp = '';
+          } else if (showMessage[i] == '@') {
+            spiltList.add(temp);
+            temp = showMessage[i];
+          } else {
+            temp += showMessage[i];
+          }
+        } else {
+          if (showMessage[i] == '@') {
+            spiltList.add(temp);
+            temp = showMessage[i];
+          } else {
+            temp += showMessage[i];
+          }
+        }
+      }
+      if (temp.isNotEmpty) {
+        spiltList.add(temp);
+      }
+      return RichText(
+          text: TextSpan(
+              children: spiltList
+                  .map((e) => TextSpan(
+                      text: e,
+                      style: TextStyle(
+                          color: e.startsWith('@') && e.endsWith(' ')
+                              ? Colors.blue
+                              : hexToColor('171538'),
+                          fontSize: 16)))
+                  .toList()));
+    } else {
+      return Text(
+        message,
+        textAlign: textAlign,
+        style: TextStyle(
+          fontSize: 16,
+          color: type == ConversationType.c2c
+              ? hexToColor('171538')
+              : hexToColor('000000'),
+        ),
+      );
+    }
+  }
+
+  TextSpan _buildTextSpan(List<String> textList) {
+    if (textList.length == 1) {
+      return TextSpan(
+          text: textList[0],
+          style: TextStyle(
+              color: textList[0].startsWith('@') && textList[0].endsWith(' ')
+                  ? Colors.blue
+                  : hexToColor('171538'),
+              fontSize: 16));
+    } else {
+      var first = textList.removeAt(0);
+      return TextSpan(
+          text: textList[0],
+          children: [_buildTextSpan(textList)],
+          style: TextStyle(
+              color: first.startsWith('@') && first.endsWith(' ')
+                  ? Colors.blue
+                  : hexToColor('171538'),
+              fontSize: 16));
+    }
   }
 }

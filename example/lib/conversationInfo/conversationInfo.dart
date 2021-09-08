@@ -179,13 +179,7 @@ class MemberListOverview extends StatelessWidget {
   }
 }
 
-// add(
-//               Container(
-//                 child: Icon(Icons.add_alarm_outlined),
-//                 width: 30,
-//                 height: 30,
-//               ),
-//             )
+
 class GroupMemberProfile extends StatelessWidget {
   GroupMemberProfile(this.memberInfo, this.groupInfo);
   final V2TimGroupMemberInfoResult memberInfo;

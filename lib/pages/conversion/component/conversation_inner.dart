@@ -41,36 +41,28 @@ class ConversationInner extends StatefulWidget {
 
 class ConversationInnerState extends State<ConversationInner>
     with WidgetsBindingObserver {
-  List<V2TimMessage>? currentMessageList = List.empty(growable: true);
+  List<V2TimMessage> _currentMessageList = List.empty(growable: true);
   ScrollController scrollController = ScrollController();
-  double _preBottom = 0.0;
-  double _bottom = 0.0;
   bool _didChangeMetrics = false;
   bool isReversed = false;
   Timer? _timer;
   bool _isNoMoreData = false;
   String _lastMsgID = '';
+  bool _isLoading = false;
+  
+
 
   @override
   void didChangeMetrics() {
     _didChangeMetrics = true;
 
     super.didChangeMetrics();
-    WidgetsBinding.instance?.addPersistentFrameCallback((timeStamp) {
-      if (!_didChangeMetrics) {
-        return;
+    WidgetsBinding.instance?.addPostFrameCallback((_){
+      if (_didChangeMetrics) {
+        _didChangeMetrics = false;
+        scrollToBottom();
       }
 
-      _preBottom = _bottom;
-      _bottom = MediaQuery.of(context).viewInsets.bottom;
-
-      if (_preBottom != _bottom) {
-        WidgetsBinding.instance?.scheduleFrame();
-        return;
-      }
-
-      _didChangeMetrics = false;
-      scrollToBottom();
     });
   }
 
@@ -82,7 +74,8 @@ class ConversationInnerState extends State<ConversationInner>
     scrollController.addListener(() {
       widget.scrollListener();
       if (scrollController.position.pixels >
-          scrollController.position.maxScrollExtent + 5) {
+          scrollController.position.maxScrollExtent + 5 && !_isLoading && !_isNoMoreData) {
+        _isLoading = true;
         getHistoryMessageList();
       }
     });
@@ -132,7 +125,9 @@ class ConversationInnerState extends State<ConversationInner>
           }
           Provider.of<CurrentMessageListModel>(context, listen: false)
               .addMessage(widget.conversationID, list);
-          setState(() {});
+          setState(() {
+            _isLoading = false;
+          });
         }
       });
     } else if (widget.type == ConversationType.group) {
@@ -154,8 +149,10 @@ class ConversationInnerState extends State<ConversationInner>
           } else {
             Provider.of<CurrentMessageListModel>(context, listen: false)
                 .addMessage(widget.conversationID, list);
-            setState(() {});
           }
+          setState(() {
+            _isLoading = false;
+          });
         }
       });
     }
@@ -164,14 +161,14 @@ class ConversationInnerState extends State<ConversationInner>
   processingHistoryList() {
     Map<String, List<V2TimMessage>> currentMessageMap =
         Provider.of<CurrentMessageListModel>(context).messageMap;
-    currentMessageList = currentMessageMap[widget.conversationID] ?? [];
-    if (currentMessageList!.length >= 10) {
+    _currentMessageList = currentMessageMap[widget.conversationID] ?? [];
+    if (_currentMessageList.length >= 10 || (scrollController.hasClients && scrollController.position.maxScrollExtent > 0)) {
       isReversed = true;
     } else {
-      currentMessageList =
+      _currentMessageList =
           currentMessageMap[widget.conversationID]?.reversed.toList() ?? [];
     }
-    bool hasNoRead = currentMessageList!.any((element) {
+    bool hasNoRead = _currentMessageList.any((element) {
       return element.isSelf == false && element.isRead == false;
     });
     if (widget.type == 2) {
@@ -200,16 +197,9 @@ class ConversationInnerState extends State<ConversationInner>
   @override
   Widget build(BuildContext context) {
     processingHistoryList();
-    if (currentMessageList!.length >= 10) {
-      isReversed = true;
-    }
-    if (!isReversed && currentMessageList!.length > 0) {
-      _timer = Timer(Duration(milliseconds: 1000), () {
-        if (scrollController.position.maxScrollExtent > 0) {
-          isReversed = true;
-          scrollController.jumpTo(scrollController.position.maxScrollExtent);
-        }
-      });
+
+    if (scrollController.hasClients && scrollController.position.maxScrollExtent > 0 && _currentMessageList.length <= 10) {
+      scrollToBottom();
     }
     List<Widget> slivers = [
       SliverSafeArea(
@@ -217,23 +207,20 @@ class ConversationInnerState extends State<ConversationInner>
         delegate: SliverChildBuilderDelegate((context, index) {
           V2TimMessage? message;
           if (_isNoMoreData) {
-            message = currentMessageList?[index];
-            if (message != null) {
-              return SendMsg(
-                  key: Key(message.msgID ?? ""),
-                  message: message,
-                  onMessageRqSuc: widget.onMessageRqSuc,
-                  onMessageRqFail: widget.onMessageRqFail);
-            }
-            return SizedBox();
+            message = _currentMessageList[index];
+            return SendMsg(
+                key: Key(message.msgID ?? ""),
+                message: message,
+                onMessageRqSuc: widget.onMessageRqSuc,
+                onMessageRqFail: widget.onMessageRqFail);
           } else {
             if (isReversed) {
-              if (index == currentMessageList?.length) {
+              if (index == _currentMessageList.length) {
                 return Center(
                   child: CupertinoActivityIndicator(),
                 );
               } else {
-                message = currentMessageList?[index];
+                message = _currentMessageList[index];
               }
             } else {
               if (index == 0) {
@@ -241,21 +228,18 @@ class ConversationInnerState extends State<ConversationInner>
                   child: CupertinoActivityIndicator(),
                 );
               } else {
-                message = currentMessageList?[index - 1];
+                message = _currentMessageList[index - 1];
               }
             }
-            if (message != null) {
-              return SendMsg(
-                  key: Key(message.msgID ?? ""),
-                  message: message,
-                  onMessageRqSuc: widget.onMessageRqSuc,
-                  onMessageRqFail: widget.onMessageRqFail);
-            }
-            return SizedBox();
+            return SendMsg(
+                key: Key(message.msgID ?? ""),
+                message: message,
+                onMessageRqSuc: widget.onMessageRqSuc,
+                onMessageRqFail: widget.onMessageRqFail);
           }
         },
             childCount:
-                (currentMessageList?.length ?? 0) + (_isNoMoreData ? 0 : 1)),
+                _currentMessageList.length + (_isNoMoreData ? 0 : 1)),
       ))
     ];
     return Container(

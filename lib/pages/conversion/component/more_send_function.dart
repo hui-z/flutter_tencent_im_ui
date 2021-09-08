@@ -188,6 +188,7 @@ class MoreSendFunction extends StatelessWidget {
           data: json.encode({
             'widget': 'Column',
             'id': 1,
+            'me': 'update',
             'children': [
               {
                 'widget': 'Text',

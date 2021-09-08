@@ -14,7 +14,8 @@ class MsgInput extends StatefulWidget {
       this.setRecordBackStatus,
       required this.moreBtnClick,
       required this.faceBtnClick,
-      required this.sendTextMsgSuc})
+      required this.sendTextMsgSuc,
+      required this.atBtnClick})
       : super(key: key);
   final String toUser;
   final int type;
@@ -22,6 +23,7 @@ class MsgInput extends StatefulWidget {
   final setRecordBackStatus;
   final VoidCallback moreBtnClick;
   final VoidCallback faceBtnClick;
+  final VoidCallback atBtnClick;
   final VoidCallback sendTextMsgSuc;
 
   @override
@@ -41,10 +43,15 @@ class _MsgInputState extends State<MsgInput> {
           Row(
             children: [
               VoiceMsg(widget.toUser, widget.type),
-              TextMsg(_textMsgKey, widget.toUser, widget.type,
-                  widget.recordBackStatus, widget.setRecordBackStatus, (text) {
-                _advanceMsgKey.currentState?.updateSendButtonStatus(text);
-              }),
+              TextMsg(
+                  key: _textMsgKey,
+                  toUser: widget.toUser,
+                  type: widget.type,
+                  recordBackStatus: widget.recordBackStatus,
+                  setRecordBackStatus: widget.setRecordBackStatus,
+                  onChanged: (text) {
+                    _advanceMsgKey.currentState?.updateSendButtonStatus(text);
+                  }),
               Container(
                 width: 44,
                 height: 44,

@@ -223,6 +223,9 @@ class ConversionState extends State<Conversion> {
                                 _isAutoScroll = false;
                               });
                             },
+                            atBtnClick: () {
+                              FocusScope.of(context).requestFocus(FocusNode());
+                            },
                             sendTextMsgSuc: () {
                               _conversationInnerKey.currentState
                                   ?.scrollToBottom();
