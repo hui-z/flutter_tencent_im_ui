@@ -12,7 +12,7 @@ class EventRouter {
 
   static EventRouter? _instance;
 
-  static EventRouter _getInstance()  {
+  static EventRouter _getInstance() {
     if (_instance == null) {
       _instance = EventRouter();
     }
@@ -21,7 +21,11 @@ class EventRouter {
 
   Dio? rest;
 
-  static handleEvent(EventInfo event, BuildContext context, Function(Response response)? onSuc, Function(DioError error)? onFail) async {
+  static handleEvent(
+      EventInfo event,
+      BuildContext context,
+      Function(Response response)? onSuc,
+      Function(DioError error)? onFail) async {
     if (event.action == EventAction.push && event.page != null) {
       Navigator.pushNamed(context, event.page!, arguments: event.arguments);
     } else if (event.action == EventAction.openUrl && event.url != null) {
@@ -32,19 +36,33 @@ class EventRouter {
         if (event.path != null) {
           switch (event.method) {
             case 'get':
-              response = await EventRouter.instance.rest?.get(event.path!, queryParameters: event.queryParameters as Map<String, dynamic>?);
+              response = await EventRouter.instance.rest?.get(event.path!,
+                  queryParameters:
+                      event.queryParameters as Map<String, dynamic>?);
               break;
             case 'post':
-              response = await EventRouter.instance.rest?.post(event.path!, queryParameters: event.queryParameters as Map<String, dynamic>?, data: event.bodyData);
+              response = await EventRouter.instance.rest?.post(event.path!,
+                  queryParameters:
+                      event.queryParameters as Map<String, dynamic>?,
+                  data: event.bodyData);
               break;
             case 'put':
-              response = await EventRouter.instance.rest?.put(event.path!, queryParameters: event.queryParameters as Map<String, dynamic>?, data: event.bodyData);
+              response = await EventRouter.instance.rest?.put(event.path!,
+                  queryParameters:
+                      event.queryParameters as Map<String, dynamic>?,
+                  data: event.bodyData);
               break;
             case 'patch':
-              response = await EventRouter.instance.rest?.patch(event.path!, queryParameters: event.queryParameters as Map<String, dynamic>?, data: event.bodyData);
+              response = await EventRouter.instance.rest?.patch(event.path!,
+                  queryParameters:
+                      event.queryParameters as Map<String, dynamic>?,
+                  data: event.bodyData);
               break;
             case 'delete':
-              response = await EventRouter.instance.rest?.delete(event.path!, queryParameters: event.queryParameters as Map<String, dynamic>?, data: event.bodyData);
+              response = await EventRouter.instance.rest?.delete(event.path!,
+                  queryParameters:
+                      event.queryParameters as Map<String, dynamic>?,
+                  data: event.bodyData);
               break;
           }
         } else if (event.url != null) {
@@ -54,16 +72,20 @@ class EventRouter {
               response = await EventRouter.instance.rest?.getUri(uri);
               break;
             case 'post':
-              response = await EventRouter.instance.rest?.postUri(uri, data: event.bodyData);
+              response = await EventRouter.instance.rest
+                  ?.postUri(uri, data: event.bodyData);
               break;
             case 'put':
-              response = await EventRouter.instance.rest?.putUri(uri, data: event.bodyData);
+              response = await EventRouter.instance.rest
+                  ?.putUri(uri, data: event.bodyData);
               break;
             case 'patch':
-              response = await EventRouter.instance.rest?.patchUri(uri, data: event.bodyData);
+              response = await EventRouter.instance.rest
+                  ?.patchUri(uri, data: event.bodyData);
               break;
             case 'delete':
-              response = await EventRouter.instance.rest?.deleteUri(uri, data: event.bodyData);
+              response = await EventRouter.instance.rest
+                  ?.deleteUri(uri, data: event.bodyData);
               break;
           }
         }

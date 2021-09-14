@@ -26,27 +26,24 @@ class FileMessage extends StatelessWidget {
         }
       },
       child: Container(
-        color: CommonColors.getWitheColor(),
         child: Row(
-          textDirection:
-          message.isSelf! ? TextDirection.rtl : TextDirection.ltr,
+          textDirection: TextDirection.rtl,
           children: [
             Expanded(
               child: Container(
-                padding: EdgeInsets.only(left: 10),
+                padding: EdgeInsets.only(left: 8),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       message.fileElem!.fileName!,
                       style: TextStyle(
-                        height: 1.5,
-                        fontSize: 12,
-                        color: CommonColors.getTextWeakColor(),
-                      ),
+                          fontSize: 16,
+                          color: CommonColors.blackTextColor,
+                          fontWeight: FontWeight.bold),
                     ),
                     Text(
-                      "${message.fileElem!.fileSize} KB",
+                      _getShowSize(message.fileElem!.fileSize ?? 0),
                       style: TextStyle(
                         height: 1.5,
                         fontSize: 12,
@@ -58,9 +55,9 @@ class FileMessage extends StatelessWidget {
               ),
             ),
             Avatar(
-              width: 50,
-              height: 50,
-              avtarUrl: 'images/file.png',
+              width: 40,
+              height: 40,
+              avtarUrl: 'images/icon_file.png',
               radius: 0,
             )
           ],
@@ -69,14 +66,28 @@ class FileMessage extends StatelessWidget {
       onTap: () {
         var title = message.fileElem?.fileName;
         var url = message.fileElem?.url;
-        // Utils.toast("测试点击事件：$url");
-        // log(" 临时位置：${message.fileElem?.path}");
-        // log(" 保存位置：${message.fileElem?.url}");
         if (title != null && url != null) {
           cacheAndLaunch(context, url, title);
         }
       },
     );
+  }
+
+  String _getShowSize(int fileSize) {
+    String size = '';
+    if (fileSize < 0.1 * 1024) {
+      size = '$fileSize B';
+    } else if (fileSize < 0.1 * 1024 * 1024) {
+      size = (fileSize / 1024).toString();
+      size = size.substring(0, size.indexOf('.') + 3) + ' KB';
+    } else if (fileSize < 0.1 * 1024 * 1024 * 1024) {
+      size = (fileSize / (1024 * 1024)).toString();
+      size = size.substring(0, size.indexOf('.') + 3) + ' MB';
+    } else if (fileSize < 0.1 * 1024 * 1024 * 1024 * 1024) {
+      size = (fileSize / (1024 * 1024 * 1024)).toString();
+      size = size.substring(0, size.indexOf('.') + 3) + ' GB';
+    }
+    return size;
   }
 
   _launchURL(String url) async {
@@ -94,8 +105,8 @@ class FileMessage extends StatelessWidget {
     log(" 保存位置：${file.path}");
     if (await file.exists()) return file.path;
     await file.create(recursive: true);
-    var response = await http.get(Uri.parse(url)).timeout(
-        Duration(seconds: 60));
+    var response =
+        await http.get(Uri.parse(url)).timeout(Duration(seconds: 60));
     if (response.statusCode == 200) {
       await file.writeAsBytes(response.bodyBytes);
       return file.path;

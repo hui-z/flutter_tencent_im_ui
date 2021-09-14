@@ -8,6 +8,7 @@ import 'package:flutter_tencent_im_ui/models/AtMessageModel.dart';
 import 'package:flutter_tencent_im_ui/pages/conversion/component/select_members.dart';
 import 'package:flutter_tencent_im_ui/provider/currentMessageList.dart';
 import 'package:flutter_tencent_im_ui/provider/keybooad_show.dart';
+import 'package:flutter_tencent_im_ui/utils/toast.dart';
 import 'package:provider/provider.dart';
 import 'package:tencent_im_sdk_plugin/models/v2_tim_message.dart';
 import 'package:tencent_im_sdk_plugin/tencent_im_sdk_plugin.dart';
@@ -220,26 +221,30 @@ class TextMsgState extends State<TextMsg> {
     var d = await flutterSoundHelper.duration(recordPath);
     double _duration = d != null ? d.inMilliseconds / 1000.0 : 0.00;
     if (_isSend) {
-      TencentImSDKPlugin.v2TIMManager
-          .getMessageManager()
-          .sendSoundMessage(
-            soundPath: recordPath,
-            receiver: (widget.type == 1 ? widget.toUser : ""),
-            groupID: (widget.type == 2 ? widget.toUser : ""),
-            duration: _duration.ceil(),
-          )
-          .then((sendRes) {
-        // 发送成功
-        if (sendRes.code == 0) {
-          String key = (widget.type == 1
-              ? "c2c_${widget.toUser}"
-              : "group_${widget.toUser}");
-          List<V2TimMessage> list = new List.empty(growable: true);
-          list.add(sendRes.data!);
-          Provider.of<CurrentMessageListModel>(context, listen: false)
-              .addMessage(key, list);
-        }
-      });
+      if (_duration > 3) {
+        TencentImSDKPlugin.v2TIMManager
+            .getMessageManager()
+            .sendSoundMessage(
+          soundPath: recordPath,
+          receiver: (widget.type == 1 ? widget.toUser : ""),
+          groupID: (widget.type == 2 ? widget.toUser : ""),
+          duration: _duration.ceil(),
+        )
+            .then((sendRes) {
+          // 发送成功
+          if (sendRes.code == 0) {
+            String key = (widget.type == 1
+                ? "c2c_${widget.toUser}"
+                : "group_${widget.toUser}");
+            List<V2TimMessage> list = new List.empty(growable: true);
+            list.add(sendRes.data!);
+            Provider.of<CurrentMessageListModel>(context, listen: false)
+                .addMessage(key, list);
+          }
+        });
+      } else {
+        Utils.toast('说话时间太短了');
+      }
     }
   }
 
@@ -282,13 +287,17 @@ class TextMsgState extends State<TextMsg> {
               borderRadius: BorderRadius.circular(4),
               clipBehavior: Clip.antiAlias,
               child: Container(
-                height: 34,
+                padding: EdgeInsets.symmetric(horizontal: 16.0),
+                constraints: BoxConstraints(
+                    maxHeight: 132.0,
+                    minHeight: 44.0,),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(4),
-                  color: Colors.white,
+                  color: CommonColors.grayBgColor,
                 ),
                 child: TextField(
                   controller: _inputController,
+                  maxLines: null,
                   onChanged: (text) {
                     if (text.length < _oldText.length) {
                       var focusIndex = _inputController.selection.extentOffset;
@@ -318,13 +327,18 @@ class TextMsgState extends State<TextMsg> {
                   focusNode: _node,
                   autocorrect: false,
                   textAlign: TextAlign.left,
-                  keyboardType: TextInputType.text,
+                  keyboardType: TextInputType.multiline,
                   textInputAction: TextInputAction.newline,
                   cursorColor: CommonColors.getThemeColor(),
                   decoration: InputDecoration(
                     border: InputBorder.none,
                     isCollapsed: true,
                     isDense: true,
+                    hintText: '编辑信息',
+                    hintStyle: TextStyle(
+                        fontSize: 16,
+                        color: CommonColors.frameColor
+                    ),
                     contentPadding: EdgeInsets.only(
                       top: 9,
                       bottom: 0,
@@ -332,6 +346,7 @@ class TextMsgState extends State<TextMsg> {
                   ),
                   style: TextStyle(
                     fontSize: 16,
+                    color: CommonColors.blackTextColor
                   ),
                   minLines: 1,
                 ),
@@ -369,10 +384,13 @@ class TextMsgState extends State<TextMsg> {
                 _sendRecord(_soundPath);
               },
               child: Container(
-                height: 34,
-                color: _isRecording
-                    ? CommonColors.getGapColor()
-                    : CommonColors.getWitheColor(),
+                height: 44,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8),
+                  color: _isRecording
+                      ? CommonColors.blueBgColor
+                      : CommonColors.blueTextColor,
+                ),
                 child: Row(
                   children: [
                     Expanded(
@@ -382,6 +400,7 @@ class TextMsgState extends State<TextMsg> {
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 14,
+                          color: Colors.white
                         ),
                       ),
                     )

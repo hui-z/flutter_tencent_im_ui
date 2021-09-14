@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_tencent_im_ui/common/images.dart';
 import 'package:flutter_tencent_im_ui/provider/keybooad_show.dart';
 import 'package:provider/provider.dart';
 
@@ -32,19 +33,20 @@ class VoiceMsgState extends State<VoiceMsg> {
   @override
   Widget build(BuildContext context) {
     bool show = Provider.of<KeyBoradModel>(context).show;
-    return Container(
-      width: 56,
-      height: 56,
-      child: InkWell(
-        child: Icon(
-          show ? Icons.keyboard_voice : Icons.keyboard,
-          size: 28,
-          color: Colors.black,
-        ),
-        onTap: () {
-          toggleKeyBord();
-        },
+    return InkWell(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 10),
+        child: Center(
+            child: Image(
+                image: assetImage(show
+                    ? 'images/icon_keyboard_voice.png'
+                    : 'images/icon_keyboard.png'),
+                width: 44,
+                height: 44)),
       ),
+      onTap: () {
+        toggleKeyBord();
+      },
     );
   }
 }

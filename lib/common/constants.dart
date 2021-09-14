@@ -4,3 +4,7 @@ class ConversationType {
 }
 
 const int msgQuerySize = 10;
+
+class ConversationConst {
+  static const int showTime = 30 * 60 * 1000;
+}

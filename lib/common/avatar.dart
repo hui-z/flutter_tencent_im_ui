@@ -2,6 +2,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_tencent_im_ui/common/colors.dart';
 
+import 'images.dart';
+
 // ignore: must_be_immutable
 class Avatar extends StatelessWidget {
   late String avtarUrl = '';
@@ -57,7 +59,7 @@ class Avatar extends StatelessWidget {
                 },
               )
             : Image(
-                image: AssetImage(avtarUrl),
+                image: assetImage(avtarUrl),
                 width: width,
                 height: height,
               ),

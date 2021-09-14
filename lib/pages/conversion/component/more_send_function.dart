@@ -37,7 +37,7 @@ class MoreSendFunction extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       height: height,
-      color: hexToColor('ededed'),
+      color: CommonColors.dividerColor,
       padding: EdgeInsets.fromLTRB(24, 20, 24, 16),
       child: GridView(
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -49,49 +49,30 @@ class MoreSendFunction extends StatelessWidget {
         children: [
           new AdvanceMsgList(
             name: '相册',
-            icon: Icon(
-              Icons.insert_photo,
-              size: 30,
-            ),
+            icon: 'images/icon_insert_photo.png',
             onPressed: () async {
               sendImageMsg(context, 1);
             },
           ),
           new AdvanceMsgList(
             name: '拍摄',
-            icon: Icon(
-              Icons.camera_alt,
-              size: 30,
-            ),
+            icon: 'images/icon_camera_alt.png',
             onPressed: () {
               sendImageMsg(context, 0);
             },
           ),
           new AdvanceMsgList(
-            name: '视频',
-            icon: Icon(
-              Icons.video_call,
-              size: 30,
-            ),
+            name: '语音通话',
+            icon: 'images/icon_video_call.png',
             onPressed: () {
-              sendVideoMsg(context);
+              Utils.toast('功能尚未开通');
             },
           ),
           new AdvanceMsgList(
             name: '文件',
-            icon: Icon(
-              Icons.insert_drive_file,
-              size: 30,
-            ),
+            icon: 'images/icon_insert_drive_file.png',
             onPressed: () async {
               sendFile(context);
-            },
-          ),
-          new AdvanceMsgList(
-            name: '自定义',
-            icon: Icon(Icons.topic),
-            onPressed: () {
-              sendCustomData(context);
             },
           ),
         ].map((e) => AdvanceMsgItem(e)).toList(),
@@ -145,7 +126,7 @@ class MoreSendFunction extends StatelessWidget {
 
       try {
         Provider.of<CurrentMessageListModel>(context, listen: false)
-            .addOneMessageIfNotExits(key, msg!);
+            .addMessage(key, [msg!]);
       } catch (err) {}
     } else {
       Utils.toast("发送失败 ${res.code} ${res.desc}");
@@ -174,86 +155,7 @@ class MoreSendFunction extends StatelessWidget {
       // 添加新消息
       try {
         Provider.of<CurrentMessageListModel>(context, listen: false)
-            .addOneMessageIfNotExits(key, msg!);
-      } catch (err) {}
-    } else {
-      Utils.toast("发送失败 ${res.code} ${res.desc}");
-    }
-  }
-
-  sendCustomData(context) async {
-    V2TimValueCallback<V2TimMessage> res = await TencentImSDKPlugin.v2TIMManager
-        .getMessageManager()
-        .sendCustomMessage(
-          data: json.encode({
-            'widget': 'Column',
-            'id': 1,
-            'me': 'update',
-            'children': [
-              {
-                'widget': 'Text',
-                'xVar': {
-                  'data': '再惠合同续约提醒',
-                  'style': {
-                    'color': 'FF000000',
-                    'fontWeight': 'bold',
-                    'fontSize': 16.0
-                  }
-                },
-              },
-              {
-                'widget': 'Row',
-                'children': [
-                  {
-                    'widget': 'Text',
-                    'xVar': {
-                      'data': '亲爱的商户',
-                      'style': {'color': 'FF9E9E9E', 'fontSize': 14.0}
-                    }
-                  },
-                ]
-              },
-              {
-                'widget': 'Text',
-                'xVar': {
-                  'data': '您与再惠合作的服务即将到期，请尽快沟通续约事宜',
-                  'style': {'color': 'FF9E9E9E', 'fontSize': 14.0}
-                },
-              },
-              {
-                'widget': 'RawMaterialButton',
-                'events': [
-                  {
-                    'type': 'onTap',
-                    'action': 'request',
-                    'method': 'get',
-                    'url': 'https://www.baidu.com'
-                  }
-                ],
-                'child': {
-                  'widget': 'Text',
-                  'xVar': {
-                    'data': '处理请求, 更新卡片',
-                    'style': {'color': 'FF2196F3', 'fontSize': 16.0}
-                  },
-                }
-              },
-            ]
-          }),
-          receiver: type == ConversationType.c2c ? toUser : "",
-          groupID: type == ConversationType.group ? toUser : "",
-        );
-    if (res.code == 0) {
-      String key = StringUtil.appendConversionType(toUser, type);
-      List<V2TimMessage> list = new List.empty(growable: true);
-      V2TimMessage? msg = res.data;
-      // 添加新消息
-
-      list.add(msg!);
-
-      try {
-        Provider.of<CurrentMessageListModel>(context, listen: false)
-            .addMessage(key, list);
+            .addMessage(key, [msg!]);
       } catch (err) {}
     } else {
       Utils.toast("发送失败 ${res.code} ${res.desc}");

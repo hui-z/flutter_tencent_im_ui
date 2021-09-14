@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_tencent_im_ui/common/colors.dart';
 import 'package:flutter_tencent_im_ui/common/constants.dart';
 import 'package:flutter_tencent_im_ui/provider/currentMessageList.dart';
 import 'package:image_picker/image_picker.dart';
@@ -174,6 +175,7 @@ class ConversionState extends State<Conversion> {
                         },
                       ),
                     ),
+                    Divider(color: CommonColors.dividerColor, height: 1,),
                     Padding(
                       padding: const EdgeInsets.all(0.0),
                       child: Center(
@@ -235,6 +237,7 @@ class ConversionState extends State<Conversion> {
                     Padding(
                       padding: const EdgeInsets.all(0.0),
                       child: Container(
+                        color: Colors.white,
                           height: _isShowBottomView
                               ? _keyboardHeight ?? _defaultKeyboardHeight
                               : MediaQuery.of(context).padding.bottom),

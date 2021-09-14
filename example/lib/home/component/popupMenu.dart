@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_tencent_im_ui/common/colors.dart';
+import 'package:flutter_tencent_im_ui/common/images.dart';
 import 'package:flutter_tencent_im_ui_test/contact/chooseContact.dart';
 
 
@@ -25,7 +26,7 @@ class MenuItem extends StatelessWidget {
           Padding(
             padding: EdgeInsets.only(right: 8),
             child: Image(
-              image: AssetImage('images/person.png'),
+              image: assetImage('images/person.png'),
               width: 18,
             ),
           ),

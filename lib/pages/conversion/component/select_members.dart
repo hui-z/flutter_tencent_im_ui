@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dynamic_widgets/custom_widget/check_list.dart';
 import 'package:flutter_tencent_im_ui/common/colors.dart';
 import 'package:flutter_tencent_im_ui/common/constants.dart';
+import 'package:flutter_tencent_im_ui/common/images.dart';
 import 'package:flutter_tencent_im_ui/models/AtMessageModel.dart';
 import 'package:flutter_tencent_im_ui/provider/user.dart';
 import 'package:flutter_tencent_im_ui/utils/toast.dart';
@@ -275,7 +276,7 @@ class _SelectMembersState extends State<SelectMembers> {
             child: ClipOval(
                 child: faceUrl == null || faceUrl.isEmpty
                     ? Image(
-                        image: AssetImage('images/person.png'),
+                        image: assetImage('images/person.png'),
                         fit: BoxFit.cover,
                         width: 36,
                         height: 36)

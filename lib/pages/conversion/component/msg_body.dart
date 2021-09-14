@@ -1,11 +1,18 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_sound/flutter_sound.dart';
 import 'package:flutter_tencent_im_ui/common/colors.dart';
 import 'package:flutter_tencent_im_ui/common/constants.dart';
+import 'package:flutter_tencent_im_ui/provider/currentMessageList.dart';
+import 'package:flutter_tencent_im_ui/utils/string_util.dart';
+import 'package:flutter_tencent_im_ui/utils/toast.dart';
+import 'package:provider/provider.dart';
 import 'package:tencent_im_sdk_plugin/enum/message_elem_type.dart';
 import 'package:tencent_im_sdk_plugin/enum/message_status.dart';
 import 'package:tencent_im_sdk_plugin/models/v2_tim_message.dart';
+import 'package:tencent_im_sdk_plugin/models/v2_tim_value_callback.dart';
+import 'package:tencent_im_sdk_plugin/tencent_im_sdk_plugin.dart';
 
 import 'system_message.dart';
 import 'custom_message.dart';
@@ -35,83 +42,137 @@ class MsgBody extends StatelessWidget {
       this.textAlign = TextAlign.left,
       this.onMessageRqSuc,
       this.onMessageRqFail})
-      : textDirection = type == ConversationType.c2c
-            ? TextDirection.rtl
-            : TextDirection.ltr,
-        crossAxisAlignment = type == ConversationType.c2c
+      : textDirection =
+            msgObj.isSelf == true ? TextDirection.rtl : TextDirection.ltr,
+        crossAxisAlignment = msgObj.isSelf == true
             ? CrossAxisAlignment.end
             : CrossAxisAlignment.start,
-        padding = type == ConversationType.c2c
-            ? EdgeInsets.only(
-                right: 12,
-              )
-            : EdgeInsets.only(
-                left: 12,
-              ),
+        padding = msgObj.isSelf == true
+            ? EdgeInsets.only(right: 12, left: 54)
+            : EdgeInsets.only(left: 12, right: 54),
         super(key: key);
 
-  String getMessageTime() {
-    String time = '';
-    int timestamp = msgObj.timestamp! * 1000;
-    DateTime timeDate = DateTime.fromMillisecondsSinceEpoch(timestamp);
-    DateTime now = DateTime.now();
-
-    if (now.day == timeDate.day) {
-      time =
-          "${timeDate.hour.toString().padLeft(2, '0')}:${timeDate.minute.toString().padLeft(2, '0')}:${timeDate.second.toString().padLeft(2, '0')}";
-    } else {
-      time =
-          "${timeDate.month.toString().padLeft(2, '0')}-${timeDate.day.toString().padLeft(2, '0')} ${timeDate.hour.toString().padLeft(2, '0')}:${timeDate.minute.toString().padLeft(2, '0')}:${timeDate.second.toString().padLeft(2, '0')}";
+  reSendMsg(BuildContext context) async {
+    V2TimValueCallback<V2TimMessage>? sendRes;
+    switch (msgObj.elemType) {
+      case MessageElemType.V2TIM_ELEM_TYPE_TEXT:
+        sendRes = await TencentImSDKPlugin.v2TIMManager
+            .getMessageManager()
+            .sendTextMessage(
+                text: msgObj.textElem?.text ?? '',
+                receiver:
+                    type == ConversationType.c2c ? msgObj.userID ?? '' : '',
+                groupID:
+                    type == ConversationType.group ? msgObj.groupID ?? '' : '');
+        break;
+      case MessageElemType.V2TIM_ELEM_TYPE_CUSTOM:
+        sendRes = await TencentImSDKPlugin.v2TIMManager
+            .getMessageManager()
+            .sendCustomMessage(
+                data: msgObj.customElem?.data ?? '',
+                receiver:
+                    type == ConversationType.c2c ? msgObj.userID ?? '' : '',
+                groupID:
+                    type == ConversationType.group ? msgObj.groupID ?? '' : '');
+        break;
+      case MessageElemType.V2TIM_ELEM_TYPE_IMAGE:
+        sendRes = await TencentImSDKPlugin.v2TIMManager
+            .getMessageManager()
+            .sendImageMessage(
+                imagePath: msgObj.imageElem?.path ?? '',
+                receiver:
+                    type == ConversationType.c2c ? msgObj.userID ?? '' : '',
+                groupID:
+                    type == ConversationType.group ? msgObj.groupID ?? '' : '');
+        break;
+      case MessageElemType.V2TIM_ELEM_TYPE_SOUND:
+        var d = await flutterSoundHelper.duration(msgObj.soundElem?.path ?? '');
+        double _duration = d != null ? d.inMilliseconds / 1000.0 : 0.00;
+        sendRes = await TencentImSDKPlugin.v2TIMManager
+            .getMessageManager()
+            .sendSoundMessage(
+              soundPath: msgObj.soundElem?.path ?? '',
+              receiver: type == ConversationType.c2c ? msgObj.userID ?? '' : '',
+              groupID:
+                  type == ConversationType.group ? msgObj.groupID ?? '' : '',
+              duration: _duration.ceil(),
+            );
+        break;
+      case MessageElemType.V2TIM_ELEM_TYPE_VIDEO:
+        sendRes = await TencentImSDKPlugin.v2TIMManager
+            .getMessageManager()
+            .sendVideoMessage(
+              videoFilePath: msgObj.videoElem?.videoPath ?? '',
+              receiver: type == ConversationType.c2c ? msgObj.userID ?? '' : '',
+              groupID:
+                  type == ConversationType.group ? msgObj.groupID ?? '' : '',
+              type: 'mp4',
+              snapshotPath: msgObj.videoElem?.snapshotPath ?? '',
+              onlineUserOnly: false,
+              duration: msgObj.videoElem?.duration ?? 10,
+            );
+        break;
+      case MessageElemType.V2TIM_ELEM_TYPE_FILE:
+        sendRes = await TencentImSDKPlugin.v2TIMManager
+            .getMessageManager()
+            .sendFileMessage(
+                filePath: msgObj.fileElem?.path ?? '',
+                fileName: msgObj.fileElem?.fileName ?? '',
+                receiver:
+                    type == ConversationType.c2c ? msgObj.userID ?? '' : '',
+                groupID:
+                    type == ConversationType.group ? msgObj.groupID ?? '' : '');
+        break;
+      case MessageElemType.V2TIM_ELEM_TYPE_LOCATION:
+        sendRes = await TencentImSDKPlugin.v2TIMManager
+            .getMessageManager()
+            .sendLocationMessage(
+                desc: msgObj.locationElem?.desc ?? '',
+                latitude: msgObj.locationElem?.latitude ?? 0,
+                longitude: msgObj.locationElem?.longitude ?? 0,
+                receiver:
+                    type == ConversationType.c2c ? msgObj.userID ?? '' : '',
+                groupID:
+                    type == ConversationType.group ? msgObj.groupID ?? '' : '');
+        break;
+      case MessageElemType.V2TIM_ELEM_TYPE_FACE:
+        sendRes = await TencentImSDKPlugin.v2TIMManager
+            .getMessageManager()
+            .sendFaceMessage(
+                index: msgObj.faceElem?.index ?? 0,
+                data: msgObj.faceElem?.data ?? '',
+                receiver:
+                    type == ConversationType.c2c ? msgObj.userID ?? '' : '',
+                groupID:
+                    type == ConversationType.group ? msgObj.groupID ?? '' : '');
+        break;
     }
-    return time;
+
+    if (sendRes?.code == 0) {
+      String key = StringUtil.appendConversionType(
+          msgObj.userID ?? msgObj.groupID ?? '', type);
+      List<V2TimMessage> list = List.empty(growable: true);
+      list.add(sendRes!.data!);
+      Provider.of<CurrentMessageListModel>(context, listen: false)
+          .addMessage(key, list);
+    } else {
+      Utils.toast("发送失败 ${sendRes?.code} ${sendRes?.desc}");
+    }
   }
 
-  Widget getHandleBar() {
+  Widget getHandleBar(BuildContext context) {
     Widget wid = new Container();
 
     if (msgObj.isSelf != null) {
-      if (msgObj.status == MessageStatus.V2TIM_MSG_STATUS_SEND_SUCC) {
-        if (msgObj.isPeerRead != null && (msgObj.groupID == '')) {
-          //c2c消息已读
-          wid = Text(
-            "已读",
-            style: TextStyle(
-              fontSize: 10,
-              color: CommonColors.getTextWeakColor(),
-            ),
-          );
-        }
-        if (msgObj.isPeerRead == false &&
-            (msgObj.groupID == null || msgObj.groupID == '')) {
-          //c2c未读
-          wid = Text(
-            "未读",
-            style: TextStyle(
-              fontSize: 10,
-              color: CommonColors.getThemeColor(),
-            ),
-          );
-        }
-      }
       if (msgObj.status == MessageStatus.V2TIM_MSG_STATUS_SEND_FAIL) {
-        wid = Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.info,
-              size: 14,
-              color: CommonColors.getReadColor(),
-            ),
-            Text(
-              "发送失败",
-              style: TextStyle(
-                fontSize: 10,
-                color: CommonColors.getReadColor(),
-                height: 1.4,
-              ),
-            ),
-          ],
+        wid = GestureDetector(
+          child: Text(
+            '发送失败，点击重新发送',
+            style: TextStyle(color: CommonColors.redTextColor),
+          ),
+          onTap: () {
+            reSendMsg(context);
+          },
         );
       }
       if (msgObj.status == MessageStatus.V2TIM_MSG_STATUS_SENDING) {
@@ -124,19 +185,14 @@ class MsgBody extends StatelessWidget {
         );
       }
     }
-    // 非自己消息不作处理
     return wid;
   }
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: Container(
-        padding: padding,
-        child: Column(
-          crossAxisAlignment: crossAxisAlignment,
-          children: [
-            Row(
+    List<Widget> children = [
+      type == ConversationType.group
+          ? Row(
               textDirection: textDirection,
               children: [
                 Text(
@@ -148,92 +204,75 @@ class MsgBody extends StatelessWidget {
                   ),
                 ),
               ],
+            )
+          : SizedBox(),
+      Container(
+        margin: EdgeInsets.only(top: type == ConversationType.group ? 4 : 0),
+        child: PhysicalModel(
+          color: Colors.transparent,
+          borderRadius: BorderRadius.circular(6),
+          clipBehavior: Clip.antiAlias,
+          child: Container(
+            padding: EdgeInsets.symmetric(vertical: msgObj.elemType == MessageElemType.V2TIM_ELEM_TYPE_IMAGE ? 0 : 12.0, horizontal: msgObj.elemType == MessageElemType.V2TIM_ELEM_TYPE_IMAGE ? 0 : 16.0),
+            decoration: BoxDecoration(
+              color: msgObj.elemType == MessageElemType.V2TIM_ELEM_TYPE_IMAGE ? null : msgObj.isSelf == true
+                  ? CommonColors.blueBgColor
+                  : CommonColors.grayBgColor,
+              borderRadius: BorderRadius.circular(12),
             ),
-            Container(
-              margin: EdgeInsets.only(top: 4),
-              child: PhysicalModel(
-                color: Colors.transparent,
-                borderRadius: BorderRadius.circular(6),
-                clipBehavior: Clip.antiAlias,
-                child: Container(
-                  padding: EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: type == ConversationType.c2c
-                        ? hexToColor('006eff').withOpacity(0.1)
-                        : hexToColor('f8f8f8').withOpacity(1),
-                    border: Border.all(
-                      width: 0.5,
-                      style: BorderStyle.solid,
-                      color: type == ConversationType.c2c
-                          ? hexToColor('006eff').withOpacity(0.3)
-                          : hexToColor('e8e8e8').withOpacity(1),
-                    ),
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                  child: msgObj.elemType ==
-                          MessageElemType.V2TIM_ELEM_TYPE_IMAGE //图片
-                      ? ImageMessage(message: msgObj)
-                      : msgObj.elemType ==
-                              MessageElemType.V2TIM_ELEM_TYPE_FACE //表情
-                          ? Container(
-                              child: Text("表情 ${msgObj.faceElem!.data}"),
-                            )
-                          : msgObj.elemType ==
-                                  MessageElemType.V2TIM_ELEM_TYPE_SOUND //语音
-                              ? SoundMessage(msgObj)
-                              : msgObj.elemType ==
-                                      MessageElemType.V2TIM_ELEM_TYPE_VIDEO //视频
-                                  ? VideoMessage(msgObj)
-                                  : msgObj.elemType ==
-                                          MessageElemType
-                                              .V2TIM_ELEM_TYPE_CUSTOM //自定义消息
-                                      ? CustomMessage(
-                                          message: msgObj,
-                                          onMessageRqSuc: onMessageRqSuc,
-                                          onMessageRqFail: onMessageRqFail)
-                                      : msgObj.elemType == 1 //文字
-                                          ? _textMessage()
-                                          : msgObj.elemType ==
-                                                  MessageElemType
-                                                      .V2TIM_ELEM_TYPE_GROUP_TIPS //系统消息
-                                              ? SystemMessage(msgObj)
-                                              : msgObj.elemType ==
-                                                      MessageElemType
-                                                          .V2TIM_ELEM_TYPE_FILE //文件消息
-                                                  ? FileMessage(message: msgObj)
-                                                  : Text(
-                                                      "未解析消息${msgObj.elemType}",
-                                                      textAlign: textAlign,
-                                                      style: TextStyle(
-                                                        fontSize: 16,
-                                                        color: type ==
-                                                                ConversationType
-                                                                    .c2c
-                                                            ? hexToColor(
-                                                                '171538')
-                                                            : hexToColor(
-                                                                '000000'),
-                                                      ),
-                                                    ),
-                ),
-              ),
-            ),
-            getHandleBar(),
-            Row(
-              children: [
-                Expanded(
-                    child: Text(
-                  getMessageTime(),
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 10,
-                    color: CommonColors.getTextWeakColor(),
-                    height: 1.6,
-                  ),
-                ))
-              ],
-            ),
-          ],
+            child: msgObj.elemType == MessageElemType.V2TIM_ELEM_TYPE_IMAGE //图片
+                ? ImageMessage(message: msgObj)
+                : msgObj.elemType == MessageElemType.V2TIM_ELEM_TYPE_FACE //表情
+                    ? Container(
+                        child: Text("表情 ${msgObj.faceElem!.data}"),
+                      )
+                    : msgObj.elemType ==
+                            MessageElemType.V2TIM_ELEM_TYPE_SOUND //语音
+                        ? SoundMessage(msgObj)
+                        : msgObj.elemType ==
+                                MessageElemType.V2TIM_ELEM_TYPE_VIDEO //视频
+                            ? VideoMessage(msgObj)
+                            : msgObj.elemType ==
+                                    MessageElemType
+                                        .V2TIM_ELEM_TYPE_CUSTOM //自定义消息
+                                ? CustomMessage(
+                                    message: msgObj,
+                                    onMessageRqSuc: onMessageRqSuc,
+                                    onMessageRqFail: onMessageRqFail)
+                                : msgObj.elemType ==
+                                        MessageElemType
+                                            .V2TIM_ELEM_TYPE_TEXT //文字
+                                    ? _textMessage()
+                                    : msgObj.elemType ==
+                                            MessageElemType
+                                                .V2TIM_ELEM_TYPE_GROUP_TIPS //系统消息
+                                        ? SystemMessage(msgObj)
+                                        : msgObj.elemType ==
+                                                MessageElemType
+                                                    .V2TIM_ELEM_TYPE_FILE //文件消息
+                                            ? FileMessage(message: msgObj)
+                                            : Text(
+                                                "未解析消息${msgObj.elemType}",
+                                                textAlign: textAlign,
+                                                style: TextStyle(
+                                                  fontSize: 16,
+                                                  color: type ==
+                                                          ConversationType.c2c
+                                                      ? hexToColor('171538')
+                                                      : hexToColor('000000'),
+                                                ),
+                                              ),
+          ),
+        ),
+      ),
+      getHandleBar(context),
+    ];
+    return Expanded(
+      child: Container(
+        padding: padding,
+        child: Column(
+          crossAxisAlignment: crossAxisAlignment,
+          children: children,
         ),
       ),
     );
@@ -289,28 +328,6 @@ class MsgBody extends StatelessWidget {
               : hexToColor('000000'),
         ),
       );
-    }
-  }
-
-  TextSpan _buildTextSpan(List<String> textList) {
-    if (textList.length == 1) {
-      return TextSpan(
-          text: textList[0],
-          style: TextStyle(
-              color: textList[0].startsWith('@') && textList[0].endsWith(' ')
-                  ? Colors.blue
-                  : hexToColor('171538'),
-              fontSize: 16));
-    } else {
-      var first = textList.removeAt(0);
-      return TextSpan(
-          text: textList[0],
-          children: [_buildTextSpan(textList)],
-          style: TextStyle(
-              color: first.startsWith('@') && first.endsWith(' ')
-                  ? Colors.blue
-                  : hexToColor('171538'),
-              fontSize: 16));
     }
   }
 }

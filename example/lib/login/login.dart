@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:flutter_tencent_im_ui/common/colors.dart';
+import 'package:flutter_tencent_im_ui/common/images.dart';
 import 'package:flutter_tencent_im_ui/provider/conversion.dart';
 import 'package:flutter_tencent_im_ui/provider/currentMessageList.dart';
 import 'package:flutter_tencent_im_ui/provider/friend.dart';
@@ -36,7 +37,7 @@ import 'package:tencent_im_sdk_plugin/models/v2_tim_user_full_info.dart';
 import '../GenerateTestUserSig.dart';
 import '../home/home.dart';
 
-var timLogo = AssetImage("images/logo.png");
+var timLogo = assetImage("images/logo.png");
 
 class LoginPage extends StatefulWidget {
   static const String routeName = 'login';
@@ -257,28 +258,28 @@ class _LoginPageState extends State<LoginPage> {
     });
   }
 
-  void onSendMessageProgress(V2TimMessage message, int progress) {
-// 消息进度
-    String key;
-    if (message.groupID == null) {
-      key = "c2c_${message.userID}";
-    } else {
-      key = "group_${message.groupID}";
-    }
-    try {
-      Provider.of<CurrentMessageListModel>(
-        context,
-        listen: false,
-      ).addOneMessageIfNotExits(
-        key,
-        message,
-      );
-    } catch (err) {
-      print("error $err");
-    }
-    print(
-        "消息发送进度 $progress ${message.timestamp} ${message.msgID} ${message.timestamp} ${message.status}");
-  }
+//   void onSendMessageProgress(V2TimMessage message, int progress) {
+// // 消息进度
+//     String key;
+//     if (message.groupID == null) {
+//       key = "c2c_${message.userID}";
+//     } else {
+//       key = "group_${message.groupID}";
+//     }
+//     try {
+//       Provider.of<CurrentMessageListModel>(
+//         context,
+//         listen: false,
+//       ).addOneMessageIfNotExits(
+//         key,
+//         message,
+//       );
+//     } catch (err) {
+//       print("error $err");
+//     }
+//     print(
+//         "消息发送进度 $progress ${message.timestamp} ${message.msgID} ${message.timestamp} ${message.status}");
+//   }
 
   void
       onFriendListAddedonFriendListDeletedonFriendInfoChangedonBlackListDeleted() async {
@@ -387,9 +388,6 @@ class _LoginPageState extends State<LoginPage> {
             onRecvMessageRevoked: (msgID) {},
             onRecvNewMessage: (msg) {
               onRecvNewMessage(msg);
-            },
-            onSendMessageProgress: (message, progress) {
-              onSendMessageProgress(message, progress);
             },
           ),
         );

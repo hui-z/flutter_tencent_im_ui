@@ -141,15 +141,11 @@ class ConversationInnerState extends State<ConversationInner>
         if (listRes.code == 0) {
           List<V2TimMessage> list = listRes.data!;
           _isNoMoreData = list.length < msgQuerySize;
-          if (list.length == 0) {
-            list = List.empty(growable: true);
-            if (list.length > 0) {
-              _lastMsgID = list.last.msgID ?? '';
-            }
-          } else {
-            Provider.of<CurrentMessageListModel>(context, listen: false)
-                .addMessage(widget.conversationID, list);
+          if (list.length > 0) {
+            _lastMsgID = list.last.msgID ?? '';
           }
+          Provider.of<CurrentMessageListModel>(context, listen: false)
+              .addMessage(widget.conversationID, list);
           setState(() {
             _isLoading = false;
           });
@@ -206,11 +202,19 @@ class ConversationInnerState extends State<ConversationInner>
           sliver: SliverList(
         delegate: SliverChildBuilderDelegate((context, index) {
           V2TimMessage? message;
+          V2TimMessage? lastMsg;
           if (_isNoMoreData) {
             message = _currentMessageList[index];
+            if (index > 0) {
+              lastMsg = _currentMessageList[index - 1];
+            }
             return SendMsg(
                 key: Key(message.msgID ?? ""),
+                isReversed: isReversed,
                 message: message,
+                type: widget.type,
+                lastMsgTime: lastMsg?.timestamp != null ? lastMsg!.timestamp! * 1000 : null,
+                isShowMsgTime: index == _currentMessageList.length - 1,
                 onMessageRqSuc: widget.onMessageRqSuc,
                 onMessageRqFail: widget.onMessageRqFail);
           } else {
@@ -221,6 +225,9 @@ class ConversationInnerState extends State<ConversationInner>
                 );
               } else {
                 message = _currentMessageList[index];
+                if (index > 0) {
+                  lastMsg = _currentMessageList[index - 1];
+                }
               }
             } else {
               if (index == 0) {
@@ -229,12 +236,18 @@ class ConversationInnerState extends State<ConversationInner>
                 );
               } else {
                 message = _currentMessageList[index - 1];
+                if (index > 1) {
+                  lastMsg = _currentMessageList[index - 1 -1];
+                }
               }
             }
             return SendMsg(
                 key: Key(message.msgID ?? ""),
+                isReversed: isReversed,
                 message: message,
+                type: widget.type,
                 onMessageRqSuc: widget.onMessageRqSuc,
+                lastMsgTime: lastMsg?.timestamp != null ? lastMsg!.timestamp! * 1000 : null,
                 onMessageRqFail: widget.onMessageRqFail);
           }
         },

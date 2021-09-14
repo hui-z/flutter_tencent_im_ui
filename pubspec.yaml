@@ -55,9 +55,18 @@ flutter:
   # To add assets to your package, add an assets section, like this:
 
   assets:
+    - images/icon_play.png
+    - images/icon_play_process.png
+    - images/icon_insert_photo.png
+    - images/icon_camera_alt.png
+    - images/icon_video_call.png
+    - images/icon_insert_drive_file.png
     - images/logo.png
     - images/person.png
-    - images/file.png
+    - images/icon_add.png
+    - images/icon_face.png
+    - images/icon_keyboard_voice.png
+    - images/icon_keyboard.png
     - images/voice_volume_1.png
     - images/voice_volume_2.png
     - images/voice_volume_3.png
@@ -65,6 +74,7 @@ flutter:
     - images/voice_volume_5.png
     - images/voice_volume_6.png
     - images/voice_volume_7.png
+
   # assets:
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg

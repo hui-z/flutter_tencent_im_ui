@@ -1,8 +1,6 @@
-import 'package:flutter/material.dart';
-
 class AdvanceMsgList {
   late String name;
-  late Icon icon;
+  late String icon;
   late Function onPressed = () {};
   AdvanceMsgList({name, icon, onPressed}) {
     this.name = name;

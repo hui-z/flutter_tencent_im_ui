@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_tencent_im_ui/common/images.dart';
 
 import 'advance_msg.dart';
 import 'text_msg.dart';
@@ -38,6 +39,7 @@ class _MsgInputState extends State<MsgInput> {
   @override
   Widget build(BuildContext context) {
     return Container(
+      color: Colors.white,
       child: Column(
         children: [
           Row(
@@ -52,16 +54,14 @@ class _MsgInputState extends State<MsgInput> {
                   onChanged: (text) {
                     _advanceMsgKey.currentState?.updateSendButtonStatus(text);
                   }),
-              Container(
-                width: 44,
-                height: 44,
-                child: IconButton(
-                    icon: Icon(
-                      Icons.tag_faces,
-                      size: 30,
-                      color: Colors.black,
-                    ),
-                    onPressed: widget.faceBtnClick),
+              InkWell(
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 8.0),
+                  child: Center(
+                      child: Image(
+                          image: assetImage('images/icon_face.png'), width: 36, height: 36)),
+                ),
+                onTap: widget.faceBtnClick,
               ),
               AdvanceMsg(
                   key: _advanceMsgKey,

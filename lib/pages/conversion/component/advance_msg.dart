@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_tencent_im_ui/common/colors.dart';
 import 'package:flutter_tencent_im_ui/common/constants.dart';
+import 'package:flutter_tencent_im_ui/common/images.dart';
 import 'package:flutter_tencent_im_ui/provider/currentMessageList.dart';
 import 'package:flutter_tencent_im_ui/utils/string_util.dart';
 import 'package:flutter_tencent_im_ui/utils/toast.dart';
@@ -74,19 +75,17 @@ class AdvanceMsgState extends State<AdvanceMsg> {
 
   Widget build(BuildContext context) {
     return sendText == null || sendText == ''
-        ? Container(
-            width: 44,
-            height: 44,
-            child: IconButton(
-              icon: Icon(
-                Icons.add,
-                size: 30,
-                color: Colors.black,
-              ),
-              onPressed: () async {
-                widget.moreBtnClick();
-              },
-            ))
+        ? InkWell(
+            child: Padding(
+              padding: const EdgeInsets.only(right: 8),
+              child: Center(
+                  child: Image(
+                      image: assetImage('images/icon_add.png'),
+                      width: 36,
+                      height: 36)),
+            ),
+            onTap: widget.moreBtnClick,
+          )
         : Container(
             padding: EdgeInsets.only(right: 12),
             width: 60,
